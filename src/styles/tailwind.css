@@ -1,0 +1,42 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  h1 {
+    @apply font-primary text-2xl font-bold md:text-4xl text-main-7 dark:text-main-2;
+  }
+
+  h2 {
+    @apply font-primary text-xl font-bold md:text-3xl text-main-7 dark:text-main-2;
+  }
+
+  h3 {
+    @apply font-primary text-lg font-bold md:text-2xl text-main-7 dark:text-main-2;
+  }
+
+  h4 {
+    @apply font-primary text-base font-bold md:text-lg text-main-7 dark:text-main-2;
+  }
+
+  body {
+    @apply font-primary text-sm md:text-base antialiased bg-main-1 dark:bg-main-8 text-main-6 dark:text-main-3;
+    @apply min-h-screen flex items-center justify-center;
+  }
+
+  html.dark {
+    color-scheme: dark;
+  }
+}
+
+@layer utilities {
+  .layout {
+    @apply w-10/12 sm:w-11/12 max-w-3xl mx-auto;
+  }
+
+  img.react {
+    filter: drop-shadow(0 0 1em #61dafbaa);
+    animation-duration: 1s;
+    animation-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  }
+}
