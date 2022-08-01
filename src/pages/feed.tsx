@@ -104,7 +104,7 @@ const Feed = ({
 
   return (
     <VStack>
-      <Flex w='100%' justify='right'>
+      <Flex w='full' justify='right'>
         <Button
           colorScheme='blue'
           onClick={() => {
@@ -115,7 +115,7 @@ const Feed = ({
           Add
         </Button>
       </Flex>
-      <TableContainer bgColor='white'>
+      <TableContainer bgColor='white' w='full'>
         <Table variant='simple'>
           <Thead>
             {table.getHeaderGroups().map((headerGroup) => (

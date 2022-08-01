@@ -38,8 +38,8 @@ const FeedForm = ({
   // }
 
   useEffect(() => {
-    console.log('form value changed: ', { title, subscription, description, sensitive, disabled })
-    onFormValueChanged({ title, subscription, description, sensitive, disabled })
+    console.log('form value changed: ', { id: feed.id, title, subscription, description, sensitive, disabled })
+    onFormValueChanged({ id: feed.id, title, subscription, description, sensitive, disabled })
   }, [title, subscription, description, sensitive, disabled])
 
   return (
