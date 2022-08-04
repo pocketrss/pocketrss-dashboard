@@ -1,5 +1,4 @@
-import { useTheme } from '@/hooks'
-import Feed from '@/pages/feed'
+// import { useTheme } from '@/hooks'
 import LayoutMain, { LayoutDashboard } from '@/layouts'
 import { queryClient } from '@/utils/react-query'
 import { LinkItemProps } from '@/types'
@@ -7,10 +6,13 @@ import { LinkItemProps } from '@/types'
 import { FiHome, FiLayers, FiRss, FiSettings, FiStar } from 'react-icons/fi'
 import { Suspense, lazy, useState, useEffect } from 'react'
 import { Route, Routes, useLocation } from 'react-router-dom'
-import { ChakraProvider, Text, theme, useDisclosure } from '@chakra-ui/react'
+import { ChakraProvider, Text, useDisclosure, theme } from '@chakra-ui/react'
 import { QueryClientProvider } from '@tanstack/react-query'
 
+
 const HomePage = lazy(() => import('@/pages').then((m) => ({ default: m.HomePage })))
+const FeedPage = lazy(() => import('@/pages').then((m) => ({ default: m.FeedPage })))
+const EntryPage = lazy(() => import('@/pages').then((m) => ({ default: m.EntryPage })))
 
 // you can add Header, footer anything else you might want to, or else leave it to be
 const StravitalApp = () => {
@@ -60,8 +62,8 @@ const StravitalApp = () => {
                 />
               }
             >
-              <Route path='/feeds' element={<Feed disclosure={disclosure} onSetFormValue={setFormValue} />} />
-              <Route path='/entries' element={<Text>{formType}</Text>} />
+              <Route path='/feeds' element={<FeedPage disclosure={disclosure} onSetFormValue={setFormValue} />} />
+              <Route path='/entries' element={<EntryPage disclosure={disclosure} onSetFormValue={setFormValue} />} />
             </Route>
           </Routes>
         </QueryClientProvider>

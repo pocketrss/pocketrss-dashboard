@@ -1,5 +1,4 @@
-import { useTheme } from '@/hooks'
-import { useFeeds } from '@/hooks/feed'
+import { useTheme, useFeeds } from '@/hooks'
 
 import { FeedProps } from '@/types'
 import { Dispatch, SetStateAction, useEffect, useMemo, useRef, useState } from 'react'

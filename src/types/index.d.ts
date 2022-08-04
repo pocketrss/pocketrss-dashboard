@@ -1,5 +1,6 @@
 import { IconType } from 'react-icons';
 import { BoxProps, FlexProps } from '@chakra-ui/react';
+import { DateTime } from 'luxon';
 
 declare module '@my-app' {
   export type Theme = 'light' | 'dark'
@@ -39,4 +40,20 @@ export interface FeedProps {
   description: string;
   sensitive: boolean
   disabled: boolean
+}
+
+export interface useEntriesOptions {
+  config?: QueryConfig;
+}
+
+export interface EntryProps {
+  id: number;
+  title: string;
+  content?: string;
+  description?: string;
+  url?: string;
+  author?: string;
+  published_at: DateTime;
+  favorited_at?: DateTime;
+  created_at: DateTime;
 }

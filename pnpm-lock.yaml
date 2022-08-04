@@ -33,6 +33,7 @@ specifiers:
   luxon: ^3.0.1
   postcss: ^8.4.14
   prettier: ^2.5.1
+  rambda: ^7.2.0
   react: ^18.2.0
   react-dom: ^18.2.0
   react-hook-form: ^7.33.1
@@ -55,6 +56,7 @@ dependencies:
   jotai: 1.7.6_react@18.2.0
   ky: 0.31.1
   luxon: 3.0.1
+  rambda: 7.2.0
   react: 18.2.0
   react-dom: 18.2.0_react@18.2.0
   react-hook-form: 7.33.1_react@18.2.0
@@ -4112,6 +4114,10 @@ packages:
     resolution: {integrity: sha512-WuyALRjWPDGtt/wzJiadO5AXY+8hZ80hVpe6MyivgraREW751X3SbhRvG3eLKOYN+8VEvqLcf3wdnt44Z4S4SA==}
     engines: {node: '>=10'}
     dev: true
+
+  /rambda/7.2.0:
+    resolution: {integrity: sha512-xW2ZcQh+AtRHdIN0RUix+gAwyfAeMBZA6SnLSblw1+YRqUx+eV4Eppg/ayDdrvSs6KegZYHYtSF6+I86Z5Owqg==}
+    dev: false
 
   /react-clientside-effect/1.2.6_react@18.2.0:
     resolution: {integrity: sha512-XGGGRQAKY+q25Lz9a/4EPqom7WRjz3z9R2k4jhVKA/puQFH/5Nt27vFZYql4m4NVNdUvX8PS3O7r/Zzm7cjUlg==}

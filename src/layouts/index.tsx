@@ -14,7 +14,7 @@ import {
   useToast
 } from '@chakra-ui/react'
 import { LinkItemProps } from '@/types'
-import { FeedForm } from '@/components'
+import { FeedForm, EntryForm } from '@/components'
 import { useEffect, useState } from 'react'
 import { useMutation, UseMutationResult } from '@tanstack/react-query'
 import ky, { KyResponse } from 'ky'
@@ -51,7 +51,7 @@ export const LayoutDashboard = ({
       mutation = feedMutation
       break
     case 2:
-      form = <Text>Form type 2</Text>
+      form = <EntryForm entry={formValue} />
       break
     default:
       form = <Text>Not immplenment</Text>
@@ -65,7 +65,7 @@ export const LayoutDashboard = ({
       <Drawer isOpen={disclosure?.isOpen} placement='right' onClose={disclosure.onClose} size='md'>
         <DrawerOverlay />
         <DrawerContent>
-          <DrawerHeader>Create your account</DrawerHeader>
+          <DrawerHeader>View data</DrawerHeader>
           <DrawerBody>{form}</DrawerBody>
           <DrawerFooter>
             <Button variant='outline' mr={3} onClick={disclosure.onClose}>
@@ -76,7 +76,8 @@ export const LayoutDashboard = ({
               type='submit'
               // onClick={onSubmit}
               onClick={() => {
-                mutation.mutateAsync(formValue)
+
+                mutation?.mutateAsync(formValue)
                   .then((resp) => {
                     console.log(resp)
                     toast({ title: 'success', status: 'success' })
