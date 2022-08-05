@@ -1,7 +1,7 @@
 import { IconType } from 'react-icons';
 import { BoxProps, FlexProps } from '@chakra-ui/react';
 import { DateTime } from 'luxon';
-
+import { PaginationState } from '@tanstack/react-table'
 declare module '@my-app' {
   export type Theme = 'light' | 'dark'
 }
@@ -29,10 +29,11 @@ export interface MobileProps extends FlexProps {
 	onOpen: () => void;
 }
 
-export interface useFeedsOptions {
+export interface useQueryOptions {
+  pagination?: PaginationState;
+  isFavor?: boolean;
 	config?: QueryConfig;
 }
-
 export interface FeedProps {
   id: number;
   title: string;
@@ -40,10 +41,6 @@ export interface FeedProps {
   description: string;
   sensitive: boolean
   disabled: boolean
-}
-
-export interface useEntriesOptions {
-  config?: QueryConfig;
 }
 
 export interface EntryProps {

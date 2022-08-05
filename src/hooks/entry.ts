@@ -1,19 +1,24 @@
 import { useMutation, useQuery } from '@tanstack/react-query';
+import { PaginationState } from '@tanstack/react-table'
 
-import { ExtractFnReturnType, EntryProps, useEntriesOptions } from '@/types';
+import { ExtractFnReturnType, EntryProps, useQueryOptions } from '@/types';
 import request from '@/utils/ky';
 
-export const fetchEntries = (): Promise<Array<EntryProps>> => {
-	return request.get('/api/v1/statuses').json();
+export const fetchEntries = ({ pagination, isFavor }): Promise<Array<EntryProps>> => {
+  const searchParams = { offset: pagination.pageIndex *pagination.pageSize, limit: pagination.pageSize }
+  if (typeof isFavor !== 'undefined') {
+    searchParams.is_favor = isFavor
+  }
+	return request.get('/api/v1/statuses', { searchParams }).json();
 };
 
 type QueryFnType = typeof fetchEntries;
 
-export const useEntries = ({ config }: useEntriesOptions) => {
+export const useEntries = ({ pagination, isFavor, config }: useQueryOptions = { pagination: { pageIndex: 0, pageSize: 10}, isFavor: false }) => {
 	return useQuery<ExtractFnReturnType<QueryFnType>>({
 		...config,
-		queryKey: ['entries'],
-		queryFn: () => fetchEntries(),
+		queryKey: ['entries', pagination?.pageIndex ?? 0, pagination?.pageSize ?? 10],
+		queryFn: () => fetchEntries({ pagination, isFavor }),
 	});
 };
 

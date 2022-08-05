@@ -1,19 +1,19 @@
 import { useMutation, useQuery } from '@tanstack/react-query';
 
-import { ExtractFnReturnType, FeedProps, useFeedsOptions } from '@/types';
+import { ExtractFnReturnType, FeedProps, useQueryOptions } from '@/types';
 import request from '@/utils/ky';
 
-export const fetchFeeds = (): Promise<Array<FeedProps>> => {
-	return request.get('/api/v1/feeds').json();
+export const fetchFeeds = ({ pagination }): Promise<Array<FeedProps>> => {
+	return request.get('/api/v1/feeds', { searchParams: { offset: pagination.pageIndex * pagination.pageSize, limit: pagination.pageSize }}).json();
 };
 
 type QueryFnType = typeof fetchFeeds;
 
-export const useFeeds = ({ config }: useFeedsOptions) => {
+export const useFeeds = ({ pagination, config }: useQueryOptions) => {
 	return useQuery<ExtractFnReturnType<QueryFnType>>({
 		...config,
-		queryKey: ['feeds'],
-		queryFn: () => fetchFeeds(),
+		queryKey: ['feeds', pagination?.pageIndex ?? 0, pagination?.pageSize ?? 10],
+		queryFn: () => fetchFeeds({ pagination }),
 	});
 };
 

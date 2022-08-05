@@ -44,7 +44,7 @@ import { DateTime } from 'luxon'
 import { pathOr } from 'rambda'
 import { useArray, useLocalStorage } from 'react-recipes'
 
-const Entry = ({
+const Favor = ({
   disclosure,
   onSetFormValue
 }: {
@@ -55,7 +55,7 @@ const Entry = ({
   const [pageSize, setPageSize] = useLocalStorage('pageSize', 10)
   const [pagination, setPagination] = useState<PaginationState>({ pageIndex: 0, pageSize })
 
-  const { data, isLoading } = useEntries({ pagination })
+  const { data, isLoading } = useEntries({ pagination, isFavor: true })
   const { add, clear, removeIndex, removeById, value: entryList, setValue: setEntryList } = useArray([])
   const [totalPage, setTotalPage] = useState(-1)
 
@@ -223,4 +223,4 @@ const Entry = ({
   )
 }
 
-export default Entry
+export default Favor

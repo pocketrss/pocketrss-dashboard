@@ -2,6 +2,7 @@ import { FeedProps } from '@/types'
 import { Alert, AlertIcon, FormControl, FormLabel, Input, Switch } from '@chakra-ui/react'
 import { Dispatch, memo, SetStateAction, useEffect, useState } from 'react'
 import { useForm } from 'react-hook-form'
+import { FormElement } from './FormElement'
 
 const FeedForm = ({
   feed = {
@@ -44,30 +45,25 @@ const FeedForm = ({
 
   return (
     <form onSubmit={handleSubmit(() => console.log('asdf'))}>
-      <FormControl>
-        <FormLabel htmlFor='id'>ID</FormLabel>
+      <FormElement title='ID'>
         <Input value={feed.id} readOnly isDisabled />
-      </FormControl>
-      <FormControl isInvalid={errors.title}>
-        <FormLabel htmlFor='title'>Title</FormLabel>
+      </FormElement>
+      <FormElement title='Title' isInvalid={errors.title}>
         <Input value={title} onChange={(evt) => setTitle(evt.target.value)} />
-      </FormControl>
-      <FormControl isInvalid={errors.subscription}>
-        <FormLabel htmlFor='subscription'>Subscription</FormLabel>
+      </FormElement>
+      <FormElement title='Subscription' isInvalid={errors.subscription}>
         <Input value={subscription} onChange={(evt) => setSubscription(evt.target.value)} />
-      </FormControl>
-      <FormControl isInvalid={errors.description}>
-        <FormLabel htmlFor='description'>Description</FormLabel>
+      </FormElement>
+      <FormElement title='Description' isInvalid={errors.description}>
         <Input value={description} onChange={(evt) => setDescription(evt.target.value)} />
-      </FormControl>
+      </FormElement>
       <FormControl isInvalid={errors.sensitive}>
         <FormLabel htmlFor='sensitive'>Enable Sensitive Mask</FormLabel>
         <Switch isChecked={sensitive} onChange={(evt) => setSensitive(evt.target.checked)} />
       </FormControl>
-      <FormControl isInvalid={errors.disabled}>
-        <FormLabel htmlFor='disabled'>Disabled</FormLabel>
+      <FormElement title='Disabled' isInvalid={errors.disabled}>
         <Switch isChecked={disabled} onChange={(evt) => setDisabled(evt.target.checked)} />
-      </FormControl>
+      </FormElement>
     </form>
   )
 }

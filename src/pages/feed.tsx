@@ -17,9 +17,15 @@ import {
 import {
   Button,
   Flex,
+  HStack,
+  Input,
+  InputGroup,
+  InputLeftAddon,
+  Select,
   Skeleton,
   Stack,
   Table,
+  Text,
   Thead,
   Tbody,
   Tr,
@@ -30,6 +36,7 @@ import {
   UseDisclosureProps
 } from '@chakra-ui/react'
 import { DateTime } from 'luxon'
+import { useArray, useLocalStorage } from 'react-recipes'
 
 const Feed = ({
   disclosure,
@@ -38,9 +45,21 @@ const Feed = ({
   disclosure: UseDisclosureProps
   onSetFormValue: Dispatch<SetStateAction<Object>>
 }) => {
-  const { theme, toggleTheme } = useTheme()
-  const { data, isLoading } = useFeeds({})
-  const defaultData = useMemo<Array<FeedProps>>(() => [], [])
+  // const { theme, toggleTheme } = useTheme()
+  const [pageSize, setPageSize] = useLocalStorage('pageSize', 0)
+  const [pagination, setPagination] = useState<PaginationState>({ pageIndex: 0, pageSize })
+  const { data, isLoading } = useFeeds({ pagination })
+  const { add, removeIndex, value: feedList, setValue: setFeedList } = useArray([])
+  const [totalPage, setTotalPage] = useState(-1)
+
+  useEffect(() => {
+    const feedlist = data?.data?.feeds ?? []
+    const totalpage = data?.page?.total ?? -1
+    setFeedList(feedlist)
+    setTotalPage(totalpage)
+  }, [data])
+
+  useEffect(() => setPageSize(pagination.pageSize), [pagination.pageSize])
 
   const columns = useMemo<ColumnDef<FeedProps>[]>(
     () => [
@@ -77,18 +96,18 @@ const Feed = ({
     ],
     []
   )
-  const [{ pageIndex, pageSize }, setPagination] = useState<PaginationState>({
-    pageIndex: 0,
-    pageSize: 20
-  })
 
   const table = useReactTable({
-    data: data ?? defaultData,
+    debugTable: true,
+    data: feedList,
     columns,
+    state: { pagination },
+    pageCount: totalPage,
     getCoreRowModel: getCoreRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
-    debugTable: true
+    onPaginationChange: setPagination,
+    manualPagination: true
   })
 
   if (isLoading) {
@@ -135,8 +154,7 @@ const Feed = ({
             {table.getRowModel().rows.map((row) => {
               const rowClick = (row: Row<FeedProps>) => {
                 if (!row) return
-                const feed = data[row.index]
-                onSetFormValue(feed)
+                onSetFormValue(feedList[row.index])
                 disclosure.onOpen()
               }
               return (
@@ -149,6 +167,50 @@ const Feed = ({
             })}
           </Tbody>
         </Table>
+        <HStack m={1}>
+          <Text>Page</Text>
+          <Button disabled={!table.getCanPreviousPage()} onClick={() => table.setPageIndex(0)}>
+            {'<<'}
+          </Button>
+          <Button disabled={!table.getCanPreviousPage()} onClick={() => table.previousPage()}>
+            {'<'}
+          </Button>
+          <Button disabled={!table.getCanNextPage()} onClick={() => table.nextPage()}>
+            {'>'}
+          </Button>
+          <Button disabled={!table.getCanNextPage()} onClick={() => table.setPageIndex(table.getPageCount() - 1)}>
+            {'>>'}
+          </Button>
+          <InputGroup>
+            {/* <InputLeftElement h="full">
+              <Text p={1} fontSize={11} bgColor="gray.100">Total: {table.getPageCount()}</Text>
+            </InputLeftElement> */}
+            <InputLeftAddon children={`Total ${table.getPageCount()}`} />
+            <Input
+              type='number'
+              w={50}
+              value={table.getState().pagination.pageIndex + 1}
+              bgColor='white'
+              textAlign='end'
+              onChange={(evt) => {
+                const page = evt.target.value ? Number(evt.target.value) - 1 : 0
+                table.setPageIndex(page)
+              }}
+            />
+          </InputGroup>
+          <Text>Show</Text>
+          <Select
+            w={100}
+            value={table.getState().pagination.pageSize}
+            onChange={(evt) => table.setPageSize(Number(evt.target.value))}
+          >
+            {['5', '10', '20', '50', '100'].map((pageSize) => (
+              <option key={pageSize} value={pageSize}>
+                {pageSize}
+              </option>
+            ))}
+          </Select>
+        </HStack>
       </TableContainer>
     </VStack>
   )

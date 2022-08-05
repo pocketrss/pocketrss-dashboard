@@ -71,23 +71,25 @@ export const LayoutDashboard = ({
             <Button variant='outline' mr={3} onClick={disclosure.onClose}>
               Cancel
             </Button>
-            <Button
-              colorScheme='blue'
-              type='submit'
-              // onClick={onSubmit}
-              onClick={() => {
-
-                mutation?.mutateAsync(formValue)
-                  .then((resp) => {
-                    console.log(resp)
-                    toast({ title: 'success', status: 'success' })
-                    disclosure.onClose()
-                  })
-                  .catch((err) => toast({ title: 'failed', status: 'error', description: err.message }))
-              }}
-            >
-              Save
-            </Button>
+            {mutation && (
+              <Button
+                colorScheme='blue'
+                type='submit'
+                // onClick={onSubmit}
+                onClick={() => {
+                  mutation
+                    .mutateAsync(formValue)
+                    .then((resp) => {
+                      console.log(resp)
+                      toast({ title: 'success', status: 'success' })
+                      disclosure.onClose()
+                    })
+                    .catch((err) => toast({ title: 'failed', status: 'error', description: err.message }))
+                }}
+              >
+                Save
+              </Button>
+            )}
           </DrawerFooter>
         </DrawerContent>
       </Drawer>

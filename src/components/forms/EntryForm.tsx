@@ -1,8 +1,9 @@
 import { EntryProps } from '@/types'
-import { Alert, AlertIcon, FormControl, FormLabel, Input, Switch, Text } from '@chakra-ui/react'
+import { Code, FormControl, FormLabel, Icon, Link, Text } from '@chakra-ui/react'
 import { DateTime } from 'luxon'
-import { Dispatch, memo, SetStateAction, useEffect, useState } from 'react'
-import { useForm } from 'react-hook-form'
+import { RiExternalLinkLine } from 'react-icons/ri'
+
+import { FormElementReadonly } from './FormElement'
 
 const EntryForm = ({
   entry = {
@@ -13,41 +14,30 @@ const EntryForm = ({
     published_at: DateTime.local(),
     favorited_at: DateTime.local(),
     created_at: DateTime.local()
-  },
+  }
 }: {
   entry: EntryProps
 }) => {
   console.log(DateTime.fromISO(entry.published_at.toLocaleString()).setLocale('zh-CN').toLocaleString())
   return (
-    <form >
+    <form>
+      <FormElementReadonly title='ID'>{entry.id}</FormElementReadonly>
+      {entry.title && <FormElementReadonly title='Title'>{entry.title}</FormElementReadonly>}
       <FormControl>
-        <FormLabel htmlFor='id'>ID</FormLabel>
-        <Text boxShadow="xs" rounded="sm" bgColor="gray.100" p="1">{entry.id}</Text>
+        <FormLabel htmlFor='url'>URL</FormLabel>
+        {/* <Text boxShadow='xs' rounded='sm' bgColor='gray.100' p='1'>
+          {entry.id}
+        </Text> */}
+        <Link href={entry.url} color='blue' noOfLines={1} isExternal>
+          {entry.url}
+          <Icon fontSize='16' as={RiExternalLinkLine} />
+        </Link>
       </FormControl>
-      <FormControl>
-        <FormLabel htmlFor='title'>Title</FormLabel>
-        <Text boxShadow="xs" rounded="sm" bgColor="gray.100" p="1">{entry.title ?? ' '}</Text>
-      </FormControl>
-      <FormControl >
-        <FormLabel htmlFor='subscription'>Content</FormLabel>
-        <Text boxShadow="xs" rounded="sm" bgColor="gray.100" p="1">{entry.content ?? ' '}</Text>
-      </FormControl>
-      <FormControl >
-        <FormLabel htmlFor='subscription'>Description</FormLabel>
-        <Text boxShadow="xs" rounded="sm" bgColor="gray.100" p="1">{entry.description}</Text>
-      </FormControl>
-      <FormControl >
-        <FormLabel htmlFor='description'>Published at</FormLabel>
-        <Text boxShadow="xs" rounded="sm" bgColor="gray.100" p="1">{entry.published_at.toLocaleString()}</Text>
-      </FormControl>
-      <FormControl >
-        <FormLabel htmlFor='sensitive'>Favorited at</FormLabel>
-        <Text boxShadow="xs" rounded="sm" bgColor="gray.100" p="1">{entry.favorited_at?.toLocaleString()}</Text>
-      </FormControl>
-      <FormControl>
-        <FormLabel htmlFor='disabled'>Created at</FormLabel>
-        <Text boxShadow="xs" rounded="sm" bgColor="gray.100" p="1">{entry.created_at.toLocaleString()}</Text>
-      </FormControl>
+      {entry.content && <FormElementReadonly title='Content'>{entry.content}</FormElementReadonly>}
+      {entry.description && <FormElementReadonly title='Description'>{entry.description}</FormElementReadonly>}
+      <FormElementReadonly title='Published_at'>{entry.published_at.toLocaleString()}</FormElementReadonly>
+      <FormElementReadonly title='Favorited_at'>{entry.favorited_at?.toLocaleString()}</FormElementReadonly>
+      <FormElementReadonly title='Created_at'>{entry.created_at.toLocaleString()}</FormElementReadonly>
     </form>
   )
 }
