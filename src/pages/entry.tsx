@@ -13,7 +13,7 @@ import {
   ColumnDef,
   OnChangeFn,
   flexRender,
-  useReactTable
+  useReactTable,
 } from '@tanstack/react-table'
 import {
   Button,
@@ -38,7 +38,7 @@ import {
   TableContainer,
   VStack,
   UseDisclosureProps,
-  Tag
+  Tag,
 } from '@chakra-ui/react'
 import { DateTime } from 'luxon'
 import { pathOr } from 'rambda'
@@ -46,7 +46,7 @@ import { useArray, useLocalStorage } from 'react-recipes'
 
 const Entry = ({
   disclosure,
-  onSetFormValue
+  onSetFormValue,
 }: {
   disclosure: UseDisclosureProps
   onSetFormValue: Dispatch<SetStateAction<Object>>
@@ -74,19 +74,19 @@ const Entry = ({
         accessorKey: 'id',
         cell: (info) => info.getValue(),
         header: 'ID',
-        footer: (props) => props.column.id
+        footer: (props) => props.column.id,
       },
       {
         accessorKey: 'title',
         cell: (info) => info.getValue(),
         header: 'Title',
-        footer: (props) => props.column.id
+        footer: (props) => props.column.id,
       },
       {
         accessorKey: 'edges.feed.title',
         cell: (info) => info.getValue(),
         header: 'Feed',
-        footer: (props) => props.column.id
+        footer: (props) => props.column.id,
       },
       // {
       //   accessorKey: 'description',
@@ -98,8 +98,8 @@ const Entry = ({
         accessorKey: 'created_at',
         cell: (info) => DateTime.fromISO(info?.getValue()).toRelative(),
         header: 'Time',
-        footer: (props) => props.column.id
-      }
+        footer: (props) => props.column.id,
+      },
     ],
     []
   )
@@ -113,7 +113,7 @@ const Entry = ({
     getFilteredRowModel: getFilteredRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
     onPaginationChange: setPagination,
-    manualPagination: true
+    manualPagination: true,
     // debugTable: true
   })
 
@@ -195,7 +195,7 @@ const Entry = ({
             <InputLeftAddon children={`Total ${table.getPageCount()}`} />
             <Input
               type='number'
-              w={50}
+              w={90}
               value={table.getState().pagination.pageIndex + 1}
               bgColor='white'
               textAlign='end'
@@ -207,7 +207,7 @@ const Entry = ({
           </InputGroup>
           <Text>Show</Text>
           <Select
-            w={100}
+            w={150}
             value={table.getState().pagination.pageSize}
             onChange={(evt) => table.setPageSize(Number(evt.target.value))}
           >

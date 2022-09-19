@@ -4,7 +4,7 @@ const config = {
   printWidth: 120,
   singleQuote: true,
   jsxSingleQuote: true,
-  trailingComma: 'none',
+  trailingComma: 'es5',
   arrowParens: 'always',
   endOfLine: 'auto',
   importOrder: ['^@/styles/(.*)$', '^@/components(.*)$', '^@/(.*)$', '^[./]', '^'],

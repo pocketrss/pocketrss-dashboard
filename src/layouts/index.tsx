@@ -1,6 +1,7 @@
 import { SidebarWithHeader } from '@/components/sidebar'
+import { useVerify } from '@/hooks'
 
-import { Outlet } from 'react-router-dom'
+import { Navigate, Outlet, redirect, useNavigate } from 'react-router-dom'
 import {
   Button,
   Drawer,
@@ -11,16 +12,34 @@ import {
   DrawerFooter,
   Text,
   UseDisclosureProps,
-  useToast
+  useToast,
 } from '@chakra-ui/react'
 import { LinkItemProps } from '@/types'
 import { FeedForm, EntryForm } from '@/components'
 import { useEffect, useState } from 'react'
 import { useMutation, UseMutationResult } from '@tanstack/react-query'
 import ky, { KyResponse } from 'ky'
+import { useLocation, useQueryParams } from 'react-recipes'
 import { creatFeed, mutateFeed, updateFeed } from '@/hooks/feed'
+import { useAtom } from 'jotai'
+import { authAtom } from '@/app/store'
 
 const LayoutMain = (): JSX.Element => {
+  const { getParams } = useQueryParams()
+  const { code, redirect_uri } = getParams()
+  const [auth] = useAtom(authAtom)
+  const { data } = useVerify({ token: auth?.token })
+  useEffect(() => {
+    console.log('auth verifing...', data, '  code: ', code, '  redirect_uri: ', redirect_uri)
+    if (data?.code === 200) {
+      let url = '/'
+      if (redirect_uri && redirect_uri.length > 0) {
+        url = `${redirect_uri}?code=${code}`
+      }
+      window.location.href = url
+    }
+  }, [data])
+
   return (
     <main>
       <Outlet />
@@ -41,6 +60,17 @@ export const LayoutDashboard = ({
   formValue: any
   onSetFormValue: any
 }): JSX.Element => {
+  const [auth] = useAtom(authAtom)
+  const { data, status } = useVerify({ token: auth?.token })
+  const { pathname } = useLocation()
+
+  useEffect(() => {
+    if (status === 'success' && data?.code !== 200) {
+      window.location.href = `/oauth/authorize?redirect_uri=${pathname}`
+      // console.log(status, data)
+    }
+  }, [data, status, pathname])
+
   let form: JSX.Element, mutation: UseMutationResult<KyResponse, unknown, void, unknown>
   // const [mutation, setMutation] = useState<UseMutationResult<KyResponse, unknown, void, unknown>>()
   const feedMutation = mutateFeed()

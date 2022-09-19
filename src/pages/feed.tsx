@@ -200,7 +200,7 @@ const Feed = ({
           </InputGroup>
           <Text>Show</Text>
           <Select
-            w={100}
+            w={150}
             value={table.getState().pagination.pageSize}
             onChange={(evt) => table.setPageSize(Number(evt.target.value))}
           >
