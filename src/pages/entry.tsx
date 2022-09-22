@@ -1,8 +1,4 @@
-import { useTheme, useEntries } from '@/hooks'
-
-import { EntryProps } from '@/types'
-import { FiExternalLink } from 'react-icons/fi'
-import { Dispatch, SetStateAction, useEffect, useMemo, useRef, useState } from 'react'
+import { Dispatch, SetStateAction, useEffect, useMemo, useState } from 'react'
 import {
   Row,
   Table as ReactTable,
@@ -11,20 +7,15 @@ import {
   getFilteredRowModel,
   getPaginationRowModel,
   ColumnDef,
-  OnChangeFn,
   flexRender,
   useReactTable,
 } from '@tanstack/react-table'
 import {
   Button,
-  Code,
-  Flex,
   HStack,
   Input,
   InputGroup,
   InputLeftAddon,
-  InputLeftElement,
-  Link,
   Skeleton,
   Select,
   Stack,
@@ -41,8 +32,12 @@ import {
   Tag,
 } from '@chakra-ui/react'
 import { DateTime } from 'luxon'
-import { pathOr } from 'rambda'
 import { useArray, useLocalStorage } from 'react-recipes'
+import { useAtom } from 'jotai'
+
+import { useTheme, useEntries } from '@/hooks'
+import { EntryProps } from '@/types'
+import { authAtom, pageAtom } from '@/app/store'
 
 const Entry = ({
   disclosure,
@@ -52,21 +47,25 @@ const Entry = ({
   onSetFormValue: Dispatch<SetStateAction<Object>>
 }) => {
   const { theme } = useTheme()
-  const [pageSize, setPageSize] = useLocalStorage('pageSize', 10)
-  const [pagination, setPagination] = useState<PaginationState>({ pageIndex: 0, pageSize })
+  // const [pageSize, setPageSize] = useLocalStorage('pageSize', 10)
+  const [authStore] = useAtom(authAtom)
+  console.log('token@entry page: ', authStore.token)
+  const [pageStore, setPageStore] = useAtom(pageAtom)
+  const [pagination, setPagination] = useState<PaginationState>({ pageIndex: 0, pageSize: pageStore.pageSize })
 
-  const { data, isLoading } = useEntries({ pagination })
+  const { data, isLoading } = useEntries({ pagination, token: authStore.token })
   const { add, clear, removeIndex, removeById, value: entryList, setValue: setEntryList } = useArray([])
-  const [totalPage, setTotalPage] = useState(-1)
+  const [totalPage, setTotalPage] = useState(0)
+
+  useEffect(() => setPageStore({ pageSize: pagination.pageSize }), [pagination])
 
   useEffect(() => {
+    console.log('data: ', data)
     const entrylist = data?.data?.entries ?? []
-    const totalpage = data?.page?.total ?? -1
+    const totalpage = data?.page?.total ?? 0
     setEntryList(entrylist)
     setTotalPage(totalpage)
   }, [data])
-
-  useEffect(() => setPageSize(pagination.pageSize), [pagination.pageSize])
 
   const columns = useMemo<ColumnDef<EntryProps>[]>(
     () => [
@@ -96,7 +95,7 @@ const Entry = ({
       // },
       {
         accessorKey: 'created_at',
-        cell: (info) => DateTime.fromISO(info?.getValue()).toRelative(),
+        cell: (info) => DateTime.fromISO(info.getValue() as string).toRelative(),
         header: 'Time',
         footer: (props) => props.column.id,
       },
@@ -151,7 +150,7 @@ const Entry = ({
               const rowClick = (row: Row<EntryProps>) => {
                 if (!row) return
                 onSetFormValue(entryList[row.index])
-                disclosure.onOpen()
+                disclosure.onOpen!()
               }
               return (
                 <Tr key={row.id} data-index={row.index} onClick={() => rowClick(row)} _hover={{ cursor: 'pointer' }}>

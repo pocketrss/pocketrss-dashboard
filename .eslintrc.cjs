@@ -63,10 +63,17 @@ module.exports = {
         'import/default': 'off',
         'import/no-named-as-default-member': 'off',
         'import/no-named-as-default': 'off',
+        'jsx-a11y/anchor-is-valid': 'off',
 
         'react/react-in-jsx-scope': 'off',
 
-        'jsx-a11y/anchor-is-valid': 'off',
+        'sort-imports': ['error', {
+          'ignoreCase': false,
+          'ignoreDeclarationSort': false,
+          'ignoreMemberSort': false,
+          'memberSyntaxSortOrder': ["none", "all", "multiple", "single"],
+          'allowSeparatedGroups': false,
+        }],
 
         '@typescript-eslint/no-unused-vars': ['error'],
 

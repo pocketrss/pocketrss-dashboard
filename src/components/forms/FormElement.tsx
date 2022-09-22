@@ -1,6 +1,7 @@
+import { DrawerFormProps } from '@/types'
 import { FormControl, FormLabel, Text } from '@chakra-ui/react'
 
-const FormElement = (props) => {
+const FormElement = (props: DrawerFormProps) => {
   const { title, children } = props
   return (
     <FormControl {...props}>
@@ -10,7 +11,7 @@ const FormElement = (props) => {
   )
 }
 
-const FormElementReadonly = ({ title, children }) => {
+const FormElementReadonly = ({ title, children }: DrawerFormProps) => {
   return (
     <FormControl>
       <FormLabel htmlFor={title.toLowerCase()} mt={2}>

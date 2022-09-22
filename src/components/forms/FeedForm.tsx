@@ -11,9 +11,9 @@ const FeedForm = ({
     subscription: '',
     description: '',
     sensitive: false,
-    disabled: false
+    disabled: false,
   },
-  onFormValueChanged
+  onFormValueChanged,
 }: {
   feed: FeedProps
   onFormValueChanged: Dispatch<SetStateAction<Object>>
@@ -26,7 +26,7 @@ const FeedForm = ({
   const {
     handleSubmit,
     register,
-    formState: { errors, isSubmitting }
+    formState: { errors, isSubmitting },
   } = useForm()
 
   // if (!feed) {
@@ -57,10 +57,10 @@ const FeedForm = ({
       <FormElement title='Description' isInvalid={errors.description}>
         <Input value={description} onChange={(evt) => setDescription(evt.target.value)} />
       </FormElement>
-      <FormControl isInvalid={errors.sensitive}>
+      <FormElement title='Sensitive' isInvalid={errors.sensitive}>
         <FormLabel htmlFor='sensitive'>Enable Sensitive Mask</FormLabel>
         <Switch isChecked={sensitive} onChange={(evt) => setSensitive(evt.target.checked)} />
-      </FormControl>
+      </FormElement>
       <FormElement title='Disabled' isInvalid={errors.disabled}>
         <Switch isChecked={disabled} onChange={(evt) => setDisabled(evt.target.checked)} />
       </FormElement>

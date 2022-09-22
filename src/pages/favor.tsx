@@ -1,6 +1,3 @@
-import { useTheme, useEntries } from '@/hooks'
-
-import { EntryProps } from '@/types'
 import { FiExternalLink } from 'react-icons/fi'
 import { Dispatch, SetStateAction, useEffect, useMemo, useRef, useState } from 'react'
 import {
@@ -13,7 +10,7 @@ import {
   ColumnDef,
   OnChangeFn,
   flexRender,
-  useReactTable
+  useReactTable,
 } from '@tanstack/react-table'
 import {
   Button,
@@ -38,35 +35,41 @@ import {
   TableContainer,
   VStack,
   UseDisclosureProps,
-  Tag
+  Tag,
 } from '@chakra-ui/react'
 import { DateTime } from 'luxon'
-import { pathOr } from 'rambda'
 import { useArray, useLocalStorage } from 'react-recipes'
+import { useAtom } from 'jotai'
+
+import { useTheme, useEntries } from '@/hooks'
+import { EntryProps } from '@/types'
+import { authAtom, pageAtom } from '@/app/store'
 
 const Favor = ({
   disclosure,
-  onSetFormValue
+  onSetFormValue,
 }: {
   disclosure: UseDisclosureProps
   onSetFormValue: Dispatch<SetStateAction<Object>>
 }) => {
   const { theme } = useTheme()
-  const [pageSize, setPageSize] = useLocalStorage('pageSize', 10)
-  const [pagination, setPagination] = useState<PaginationState>({ pageIndex: 0, pageSize })
+  const [authStore] = useAtom(authAtom)
+  const [pageStore, setPageStore] = useAtom(pageAtom)
+  // const [pageSize, setPageSize] = useLocalStorage('pageSize', 10)
+  const [pagination, setPagination] = useState<PaginationState>({ pageIndex: 0, pageSize: pageStore.pageSize })
 
-  const { data, isLoading } = useEntries({ pagination, isFavor: true })
+  const { data, isLoading } = useEntries({ pagination, isFavor: true, token: authStore.token })
   const { add, clear, removeIndex, removeById, value: entryList, setValue: setEntryList } = useArray([])
-  const [totalPage, setTotalPage] = useState(-1)
+  const [totalPage, setTotalPage] = useState(0)
 
   useEffect(() => {
     const entrylist = data?.data?.entries ?? []
-    const totalpage = data?.page?.total ?? -1
+    const totalpage = data?.page?.total ?? 0
     setEntryList(entrylist)
     setTotalPage(totalpage)
   }, [data])
 
-  useEffect(() => setPageSize(pagination.pageSize), [pagination.pageSize])
+  useEffect(() => setPageStore({ pageSize: pagination.pageSize }), [pagination])
 
   const columns = useMemo<ColumnDef<EntryProps>[]>(
     () => [
@@ -74,19 +77,19 @@ const Favor = ({
         accessorKey: 'id',
         cell: (info) => info.getValue(),
         header: 'ID',
-        footer: (props) => props.column.id
+        footer: (props) => props.column.id,
       },
       {
         accessorKey: 'title',
         cell: (info) => info.getValue(),
         header: 'Title',
-        footer: (props) => props.column.id
+        footer: (props) => props.column.id,
       },
       {
         accessorKey: 'edges.feed.title',
         cell: (info) => info.getValue(),
         header: 'Feed',
-        footer: (props) => props.column.id
+        footer: (props) => props.column.id,
       },
       // {
       //   accessorKey: 'description',
@@ -96,10 +99,10 @@ const Favor = ({
       // },
       {
         accessorKey: 'created_at',
-        cell: (info) => DateTime.fromISO(info?.getValue()).toRelative(),
+        cell: (info) => DateTime.fromISO(info.getValue() as string).toRelative(),
         header: 'Time',
-        footer: (props) => props.column.id
-      }
+        footer: (props) => props.column.id,
+      },
     ],
     []
   )
@@ -113,7 +116,7 @@ const Favor = ({
     getFilteredRowModel: getFilteredRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
     onPaginationChange: setPagination,
-    manualPagination: true
+    manualPagination: true,
     // debugTable: true
   })
 
@@ -151,7 +154,7 @@ const Favor = ({
               const rowClick = (row: Row<EntryProps>) => {
                 if (!row) return
                 onSetFormValue(entryList[row.index])
-                disclosure.onOpen()
+                disclosure.onOpen!()
               }
               return (
                 <Tr key={row.id} data-index={row.index} onClick={() => rowClick(row)} _hover={{ cursor: 'pointer' }}>
@@ -207,7 +210,7 @@ const Favor = ({
           </InputGroup>
           <Text>Show</Text>
           <Select
-            w={100}
+            w={150}
             value={table.getState().pagination.pageSize}
             onChange={(evt) => table.setPageSize(Number(evt.target.value))}
           >

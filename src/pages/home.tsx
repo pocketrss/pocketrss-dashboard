@@ -1,17 +1,29 @@
-import { Button, Image, Link, UnderlineLink } from '@/components'
+import { RiRssLine, RiNewspaperLine } from 'react-icons/ri'
+import { Box, Flex, HStack, Icon, Skeleton, Stack, Stat, StatLabel, StatNumber } from '@chakra-ui/react'
+import { useArray } from 'react-recipes'
+import { useAtom } from 'jotai'
+import { useEffect } from 'react'
 
-import react_icon from '@/assets/react.svg'
-import { useTheme } from '@/hooks'
-import { twclsx } from '@/utils'
-
-import { HiMoon, HiSun } from 'react-icons/hi'
-import { IoLogoGithub } from 'react-icons/io5'
-import { RiHome4Line, RiRssLine, RiNewspaperLine, RiHeart2Line, RiSettings4Line } from 'react-icons/ri'
-import { Box, Flex, HStack, Icon, Stat, StatLabel, StatNumber, StatHelpText, StatArrow, StatGroup } from '@chakra-ui/react'
-import { DateTime } from 'luxon'
+import { useHomeTimeline } from '@/hooks'
+import { authAtom, pageAtom } from '@/app/store'
 
 const Home: React.FunctionComponent = () => {
-  const { theme, toggleTheme } = useTheme()
+  const [authStore] = useAtom(authAtom)
+  const [pageStore] = useAtom(pageAtom)
+  const { data, isLoading } = useHomeTimeline({ limit: pageStore.pageSize, token: authStore.token })
+  const { add, removeIndex, value: statusList, setValue: setStatusList } = useArray([])
+
+  useEffect(() => setStatusList(data), [data])
+
+  if (isLoading) {
+    return (
+      <Stack>
+        <Skeleton height='20px' />
+        <Skeleton height='20px' />
+        <Skeleton height='20px' />
+      </Stack>
+    )
+  }
 
   return (
     <HStack>
@@ -19,7 +31,7 @@ const Home: React.FunctionComponent = () => {
         <Flex justifyContent='space-between'>
           <Box>
             <StatLabel>Feeds</StatLabel>
-            <StatNumber>20</StatNumber>
+            <StatNumber>{statusList?.length ?? 0}</StatNumber>
             {/* <StatHelpText>{DateTime.now().toSQLDate()}</StatHelpText> */}
           </Box>
           <Box>
@@ -32,7 +44,7 @@ const Home: React.FunctionComponent = () => {
         <Flex justifyContent='space-between'>
           <Box>
             <StatLabel>Feeds</StatLabel>
-            <StatNumber>20</StatNumber>
+            <StatNumber>{statusList?.length}</StatNumber>
             {/* <StatHelpText>{DateTime.now().toSQLDate()}</StatHelpText> */}
           </Box>
           <Box>
@@ -40,7 +52,6 @@ const Home: React.FunctionComponent = () => {
           </Box>
         </Flex>
       </Stat>
-
     </HStack>
   )
 }

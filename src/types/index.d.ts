@@ -2,11 +2,39 @@ import { IconType } from 'react-icons';
 import { BoxProps, FlexProps } from '@chakra-ui/react';
 import { DateTime } from 'luxon';
 import { PaginationState } from '@tanstack/react-table'
-declare module '@my-app' {
-  export type Theme = 'light' | 'dark'
+import { QueryConfig } from '@/utils/react-query';
+import { ReactNode } from 'react';
+// declare module '@my-app' {
+//   export type Theme = 'light' | 'dark'
+// }
+
+export interface CodeResponseProps {
+  code?: number;
+  message?: string;
+  access_token?: string
+  created_at?: number;
+  scope?: string;
+  token_type?: string;
+}
+
+export interface VerifyProps {
+  acct: string;
+  avatar?: string;
+  avatar_static?: string;
+  dislay_name: string;
+  header?: string;
+  id: number;
+  username: string;
 }
 
 export type ExtractFnReturnType<FnType extends (...args: any) => any> = Awaited<ReturnType<FnType>>
+
+export interface MastodonBaseRequestProps {
+  limit?: number;
+  max_id?: number;
+  token?: string;
+  config?: unkown;
+}
 
 export interface LinkItemProps {
   name: string;
@@ -32,8 +60,15 @@ export interface MobileProps extends FlexProps {
 export interface useQueryOptions {
   pagination?: PaginationState;
   isFavor?: boolean;
+  token?: string;
 	config?: QueryConfig;
 }
+
+export interface useVerifyOptions {
+  token: string
+  config?: QueryConfig;
+}
+
 export interface FeedProps {
   id: number;
   title: string;
@@ -54,3 +89,24 @@ export interface EntryProps {
   favorited_at?: DateTime;
   created_at: DateTime;
 }
+
+export interface QueryResponseProps {
+  code: number;
+  data?: Record<string, Array<EntryProps | FeedProps>>;
+  page?: { total: number };
+}
+
+export interface useSigninOptions {
+  username: string;
+  password: string;
+  code?: string;
+}
+
+export interface DrawerFormProps extends Record<string, unknown> {
+  title: string;
+  children: ReactNode;
+}
+
+declare type Dict<T = any> = Record<string, T>
+
+export { Dict }

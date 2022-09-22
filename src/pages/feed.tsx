@@ -1,7 +1,4 @@
-import { useTheme, useFeeds } from '@/hooks'
-
-import { FeedProps } from '@/types'
-import { Dispatch, SetStateAction, useEffect, useMemo, useRef, useState } from 'react'
+import { Dispatch, SetStateAction, useEffect, useMemo, useState } from 'react'
 import {
   Row,
   Table as ReactTable,
@@ -12,7 +9,7 @@ import {
   getPaginationRowModel,
   ColumnDef,
   OnChangeFn,
-  flexRender
+  flexRender,
 } from '@tanstack/react-table'
 import {
   Button,
@@ -33,33 +30,40 @@ import {
   Td,
   TableContainer,
   VStack,
-  UseDisclosureProps
+  UseDisclosureProps,
 } from '@chakra-ui/react'
 import { DateTime } from 'luxon'
 import { useArray, useLocalStorage } from 'react-recipes'
+import { useAtom } from 'jotai'
+
+import { useTheme, useFeeds } from '@/hooks'
+import { FeedProps } from '@/types'
+import { authAtom, pageAtom } from '@/app/store'
 
 const Feed = ({
   disclosure,
-  onSetFormValue
+  onSetFormValue,
 }: {
   disclosure: UseDisclosureProps
   onSetFormValue: Dispatch<SetStateAction<Object>>
 }) => {
   // const { theme, toggleTheme } = useTheme()
-  const [pageSize, setPageSize] = useLocalStorage('pageSize', 0)
-  const [pagination, setPagination] = useState<PaginationState>({ pageIndex: 0, pageSize })
-  const { data, isLoading } = useFeeds({ pagination })
+  const [authStore] = useAtom(authAtom)
+  const [pageStore, setPageStore] = useAtom(pageAtom)
+  // const [pageSize, setPageSize] = useLocalStorage('pageSize', 0)
+  const [pagination, setPagination] = useState<PaginationState>({ pageIndex: 0, pageSize: pageStore.pageSize })
+  const { data, isLoading } = useFeeds({ pagination, token: authStore.token })
   const { add, removeIndex, value: feedList, setValue: setFeedList } = useArray([])
-  const [totalPage, setTotalPage] = useState(-1)
+  const [totalPage, setTotalPage] = useState(0)
 
   useEffect(() => {
     const feedlist = data?.data?.feeds ?? []
-    const totalpage = data?.page?.total ?? -1
+    const totalpage = data?.page?.total ?? 0
     setFeedList(feedlist)
     setTotalPage(totalpage)
   }, [data])
 
-  useEffect(() => setPageSize(pagination.pageSize), [pagination.pageSize])
+  useEffect(() => setPageStore({ pageSize: pagination.pageSize }), [pagination])
 
   const columns = useMemo<ColumnDef<FeedProps>[]>(
     () => [
@@ -67,32 +71,35 @@ const Feed = ({
         accessorKey: 'id',
         cell: (info) => info.getValue(),
         header: 'ID',
-        footer: (props) => props.column.id
+        footer: (props) => props.column.id,
       },
       {
         accessorKey: 'title',
         cell: (info) => info.getValue(),
         header: 'Title',
-        footer: (props) => props.column.id
+        footer: (props) => props.column.id,
       },
       {
         accessorKey: 'subscription',
         cell: (info) => info.getValue(),
         header: 'Subscription',
-        footer: (props) => props.column.id
+        footer: (props) => props.column.id,
       },
       {
         accessorKey: 'description',
         cell: (info) => info.getValue(),
         header: 'Description',
-        footer: (props) => props.column.id
+        footer: (props) => props.column.id,
       },
       {
         accessorKey: 'created_at',
-        cell: (info) => DateTime.fromISO(info?.getValue()).setLocale('zh-CN').toLocaleString(),
+        cell: (info) =>
+          DateTime.fromISO(info?.getValue() as string)
+            // .setLocale('zh-CN')
+            .toRelative(),
         header: 'Create Time',
-        footer: (props) => props.column.id
-      }
+        footer: (props) => props.column.id,
+      },
     ],
     []
   )
@@ -107,7 +114,7 @@ const Feed = ({
     getFilteredRowModel: getFilteredRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
     onPaginationChange: setPagination,
-    manualPagination: true
+    manualPagination: true,
   })
 
   if (isLoading) {
@@ -127,7 +134,7 @@ const Feed = ({
           colorScheme='blue'
           onClick={() => {
             onSetFormValue({})
-            disclosure.onOpen()
+            disclosure.onOpen!()
           }}
         >
           Add
@@ -155,7 +162,7 @@ const Feed = ({
               const rowClick = (row: Row<FeedProps>) => {
                 if (!row) return
                 onSetFormValue(feedList[row.index])
-                disclosure.onOpen()
+                disclosure.onOpen!()
               }
               return (
                 <Tr key={row.id} data-index={row.index} onClick={() => rowClick(row)} _hover={{ cursor: 'pointer' }}>
@@ -204,7 +211,7 @@ const Feed = ({
             value={table.getState().pagination.pageSize}
             onChange={(evt) => table.setPageSize(Number(evt.target.value))}
           >
-            {['5', '10', '20', '50', '100'].map((pageSize) => (
+            {['10', '20', '50', '100'].map((pageSize) => (
               <option key={pageSize} value={pageSize}>
                 {pageSize}
               </option>

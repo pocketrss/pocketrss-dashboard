@@ -1,7 +1,5 @@
-import { SidebarWithHeader } from '@/components/sidebar'
-import { useVerify } from '@/hooks'
-
-import { Navigate, Outlet, redirect, useNavigate } from 'react-router-dom'
+import { useMutation, UseMutationResult } from '@tanstack/react-query'
+import { Outlet } from 'react-router-dom'
 import {
   Button,
   Drawer,
@@ -13,29 +11,28 @@ import {
   Text,
   UseDisclosureProps,
   useToast,
+  CircularProgress,
 } from '@chakra-ui/react'
-import { LinkItemProps } from '@/types'
-import { FeedForm, EntryForm } from '@/components'
-import { useEffect, useState } from 'react'
-import { useMutation, UseMutationResult } from '@tanstack/react-query'
-import ky, { KyResponse } from 'ky'
-import { useLocation, useQueryParams } from 'react-recipes'
-import { creatFeed, mutateFeed, updateFeed } from '@/hooks/feed'
+import { Suspense, useEffect } from 'react'
+import { KyResponse } from 'ky'
+import { useLocation, useQueryParams, usePrevious } from 'react-recipes'
 import { useAtom } from 'jotai'
+
 import { authAtom } from '@/app/store'
+import { FeedForm, EntryForm, SidebarWithHeader, ErrorBoundary } from '@/components'
+import { useVerify, mutateFeed } from '@/hooks'
+import { Dict, LinkItemProps } from '@/types'
 
 const LayoutMain = (): JSX.Element => {
   const { getParams } = useQueryParams()
   const { code, redirect_uri } = getParams()
   const [auth] = useAtom(authAtom)
-  const { data } = useVerify({ token: auth?.token })
+  const { data, status, isError } = useVerify({ token: auth?.token, config: { useErrorBoundary: true } })
+  useEffect(() => console.log('status:', status, ' isError:', isError), [status, isError])
   useEffect(() => {
     console.log('auth verifing...', data, '  code: ', code, '  redirect_uri: ', redirect_uri)
-    if (data?.code === 200) {
-      let url = '/'
-      if (redirect_uri && redirect_uri.length > 0) {
-        url = `${redirect_uri}?code=${code}`
-      }
+    if (data?.username === auth.username) {
+      const url = redirect_uri?.length > 0 ? `${redirect_uri}?code=${code}` : '/'
       window.location.href = url
     }
   }, [data])
@@ -52,7 +49,7 @@ export const LayoutDashboard = ({
   disclosure,
   formType,
   formValue,
-  onSetFormValue
+  onSetFormValue,
 }: {
   linkItems: Array<LinkItemProps>
   disclosure: UseDisclosureProps
@@ -63,22 +60,41 @@ export const LayoutDashboard = ({
   const [auth] = useAtom(authAtom)
   const { data, status } = useVerify({ token: auth?.token })
   const { pathname } = useLocation()
+  const prevStatus = usePrevious(status)
+
+  let form: JSX.Element
+  let mutation: UseMutationResult<KyResponse, unknown, Dict, unknown> = mutateFeed()
 
   useEffect(() => {
-    if (status === 'success' && data?.code !== 200) {
-      window.location.href = `/oauth/authorize?redirect_uri=${pathname}`
-      // console.log(status, data)
-    }
-  }, [data, status, pathname])
+    console.log('status...', status)
 
-  let form: JSX.Element, mutation: UseMutationResult<KyResponse, unknown, void, unknown>
-  // const [mutation, setMutation] = useState<UseMutationResult<KyResponse, unknown, void, unknown>>()
-  const feedMutation = mutateFeed()
+    // switch (status) {
+    //   case 'loading':
+    //     // console.log('loading...')
+    //     break
+    //   case 'success':
+    //     if (data?.username !== auth.username) {
+    //       window.location.href = `/oauth/authorize?redirect_uri=${pathname}`
+    //     }
+
+    //     break
+    //   default:
+    //     // if (data?.username !== auth.username) {
+    //     //   window.location.href = `/oauth/authorize?redirect_uri=${pathname}`
+    //     // }
+
+    //     break
+    // }
+
+    if (status === 'success' && data?.username !== auth.username) {
+      window.location.href = `/oauth/authorize?redirect_uri=${pathname}`
+    }
+  }, [data, status, prevStatus, auth, pathname])
 
   switch (formType) {
     case 1:
       form = <FeedForm feed={formValue} onFormValueChanged={onSetFormValue} />
-      mutation = feedMutation
+      mutation = mutateFeed()
       break
     case 2:
       form = <EntryForm entry={formValue} />
@@ -91,8 +107,17 @@ export const LayoutDashboard = ({
 
   return (
     <SidebarWithHeader linkItems={linkItems}>
+      {/* <ErrorBoundary>
+        <Suspense fallback={<CircularProgress />}> */}
       <Outlet />
-      <Drawer isOpen={disclosure?.isOpen} placement='right' onClose={disclosure.onClose} size='md'>
+      {/* </Suspense>
+      </ErrorBoundary> */}
+      <Drawer
+        isOpen={disclosure?.isOpen ?? false}
+        placement='right'
+        onClose={disclosure.onClose ?? function () {}}
+        size='md'
+      >
         <DrawerOverlay />
         <DrawerContent>
           <DrawerHeader>View data</DrawerHeader>
@@ -105,17 +130,25 @@ export const LayoutDashboard = ({
               <Button
                 colorScheme='blue'
                 type='submit'
-                // onClick={onSubmit}
-                onClick={() => {
-                  mutation
-                    .mutateAsync(formValue)
-                    .then((resp) => {
-                      console.log(resp)
-                      toast({ title: 'success', status: 'success' })
-                      disclosure.onClose()
-                    })
-                    .catch((err) => toast({ title: 'failed', status: 'error', description: err.message }))
+                onClick={async () => {
+                  try {
+                    const data = mutation.mutate(formValue)
+                    toast({ title: 'success', status: 'success' })
+                  } catch (err: unknown) {
+                    toast({ title: 'failed', status: 'error', description: `${err}` })
+                  }
                 }}
+                // onClick={onSubmit}
+                // onClick={() => {
+                //   mutation
+                //     .mutateAsync(formValue)
+                //     .then((resp) => {
+                //       console.log(resp)
+                //       toast({ title: 'success', status: 'success' })
+                //       disclosure.onClose!()
+                //     })
+                //     .catch((err) => toast({ title: 'failed', status: 'error', description: err?.message }))
+                // }}
               >
                 Save
               </Button>

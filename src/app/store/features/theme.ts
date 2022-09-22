@@ -1,6 +1,6 @@
-import { Theme } from '@my-app'
 import { atomWithStorage } from 'jotai/utils'
-import { extendTheme, theme as defaultTheme, withDefaultColorScheme, withDefaultVariant } from '@chakra-ui/react';
+import { extendTheme, theme as defaultTheme, withDefaultColorScheme, withDefaultVariant } from '@chakra-ui/react'
+import { Dict } from '@/types';
 
 const { orange } = defaultTheme.colors;
 
@@ -22,6 +22,6 @@ const theme = extendTheme(
   withDefaultVariant({ variant: 'filled', components: ['Input', 'Select'] }),
 )
 
-const themeAtom = atomWithStorage<Theme>('APP_THEME', theme)
+const themeAtom = atomWithStorage<Dict>('APP_THEME', theme)
 
 export default themeAtom

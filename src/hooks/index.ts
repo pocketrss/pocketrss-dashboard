@@ -1,4 +1,4 @@
-export { default as useTheme } from './useTheme'
+export { default as useTheme } from './theme'
 export { useFeeds, mutateFeed } from './feed'
-export { useEntries } from './entry'
-export { useVerify, mutSignin } from './useAuth'
+export { useEntries, useHomeTimeline } from './entry'
+export { useVerify, mutSignin } from './auth'

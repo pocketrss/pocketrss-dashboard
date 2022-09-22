@@ -6,8 +6,6 @@ let opts = {
   }
 }
 
-
-
 const request = ky.extend(opts)
 
 export default request
