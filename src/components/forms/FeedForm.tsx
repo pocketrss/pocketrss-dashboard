@@ -1,68 +1,63 @@
+import { drawerAtom } from '@/app/store'
 import { FeedProps } from '@/types'
 import { Alert, AlertIcon, FormControl, FormLabel, Input, Switch } from '@chakra-ui/react'
+import { useAtom } from 'jotai'
 import { Dispatch, memo, SetStateAction, useEffect, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { FormElement } from './FormElement'
 
-const FeedForm = ({
-  feed = {
-    id: 0,
-    title: '',
-    subscription: '',
-    description: '',
-    sensitive: false,
-    disabled: false,
-  },
-  onFormValueChanged,
-}: {
-  feed: FeedProps
-  onFormValueChanged: Dispatch<SetStateAction<Object>>
-}) => {
-  const [title, setTitle] = useState<string>(feed?.title ?? '')
-  const [subscription, setSubscription] = useState<string>(feed?.subscription ?? '')
-  const [description, setDescription] = useState<string>(feed?.description ?? '')
-  const [sensitive, setSensitive] = useState<boolean>(feed?.sensitive ?? false)
-  const [disabled, setDisabled] = useState<boolean>(feed?.disabled ?? false)
+const FeedForm = () => {
+  // const [title, setTitle] = useState<string>(feed?.title ?? '')
+  // const [subscription, setSubscription] = useState<string>(feed?.subscription ?? '')
+  // const [description, setDescription] = useState<string>(feed?.description ?? '')
+  // const [sensitive, setSensitive] = useState<boolean>(feed?.sensitive ?? false)
+  // const [disabled, setDisabled] = useState<boolean>(feed?.disabled ?? false)
+  const [drawer, setDrawer] = useAtom(drawerAtom)
+  const { id, title, subscription, description, sensitive, disabled } = drawer.payload
+
   const {
     handleSubmit,
     register,
     formState: { errors, isSubmitting },
   } = useForm()
 
-  // if (!feed) {
-  //   return (
-  //     <Alert status='warning'>
-  //       <AlertIcon />
-  //       Seems your account is about expire, upgrade now
-  //     </Alert>
-  //   )
-  // }
-
-  useEffect(() => {
-    console.log('form value changed: ', { id: feed.id, title, subscription, description, sensitive, disabled })
-    onFormValueChanged({ id: feed.id, title, subscription, description, sensitive, disabled })
-  }, [title, subscription, description, sensitive, disabled])
+  useEffect(() => setDrawer({ ...drawer, isSubmitting }), [isSubmitting])
 
   return (
-    <form onSubmit={handleSubmit(() => console.log('asdf'))}>
+    <form onSubmit={handleSubmit(() => console.log('on submitting...'))}>
       <FormElement title='ID'>
-        <Input value={feed.id} readOnly isDisabled />
+        <Input value={id} readOnly isDisabled />
       </FormElement>
       <FormElement title='Title' isInvalid={errors.title}>
-        <Input value={title} onChange={(evt) => setTitle(evt.target.value)} />
+        <Input
+          value={title}
+          onChange={(evt) => setDrawer({ ...drawer, payload: { ...drawer.payload, title: evt.target.value } })}
+        />
       </FormElement>
       <FormElement title='Subscription' isInvalid={errors.subscription}>
-        <Input value={subscription} onChange={(evt) => setSubscription(evt.target.value)} />
+        <Input
+          value={subscription}
+          onChange={(evt) => setDrawer({ ...drawer, payload: { ...drawer.payload, subscription: evt.target.value } })}
+        />
       </FormElement>
       <FormElement title='Description' isInvalid={errors.description}>
-        <Input value={description} onChange={(evt) => setDescription(evt.target.value)} />
+        <Input
+          value={description}
+          onChange={(evt) => setDrawer({ ...drawer, payload: { ...drawer.payload, description: evt.target.value } })}
+        />
       </FormElement>
-      <FormElement title='Sensitive' isInvalid={errors.sensitive}>
-        <FormLabel htmlFor='sensitive'>Enable Sensitive Mask</FormLabel>
-        <Switch isChecked={sensitive} onChange={(evt) => setSensitive(evt.target.checked)} />
+      <FormElement title='Mark as Sensitive' isInvalid={errors.sensitive}>
+        {/* <FormLabel htmlFor='sensitive'>Enable Sensitive Mask</FormLabel> */}
+        <Switch
+          isChecked={sensitive}
+          onChange={(evt) => setDrawer({ ...drawer, payload: { ...drawer.payload, sensitive: evt.target.checked } })}
+        />
       </FormElement>
       <FormElement title='Disabled' isInvalid={errors.disabled}>
-        <Switch isChecked={disabled} onChange={(evt) => setDisabled(evt.target.checked)} />
+        <Switch
+          isChecked={disabled}
+          onChange={(evt) => setDrawer({ ...drawer, payload: { ...drawer.payload, disabled: evt.target.checked } })}
+        />
       </FormElement>
     </form>
   )

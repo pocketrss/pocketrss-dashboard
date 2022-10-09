@@ -44,118 +44,20 @@ const LayoutMain = (): JSX.Element => {
   )
 }
 
-export const LayoutDashboard = ({
-  linkItems,
-  disclosure,
-  formType,
-  formValue,
-  onSetFormValue,
-}: {
-  linkItems: Array<LinkItemProps>
-  disclosure: UseDisclosureProps
-  formType: number
-  formValue: any
-  onSetFormValue: any
-}): JSX.Element => {
+export const LayoutDashboard = ({ linkItems }: { linkItems: Array<LinkItemProps> }): JSX.Element => {
   const [auth] = useAtom(authAtom)
   const { data, status } = useVerify({ token: auth?.token })
   const { pathname } = useLocation()
-  const prevStatus = usePrevious(status)
-
-  let form: JSX.Element
-  let mutation: UseMutationResult<KyResponse, unknown, Dict, unknown> = mutateFeed()
 
   useEffect(() => {
-    console.log('status...', status)
-
-    // switch (status) {
-    //   case 'loading':
-    //     // console.log('loading...')
-    //     break
-    //   case 'success':
-    //     if (data?.username !== auth.username) {
-    //       window.location.href = `/oauth/authorize?redirect_uri=${pathname}`
-    //     }
-
-    //     break
-    //   default:
-    //     // if (data?.username !== auth.username) {
-    //     //   window.location.href = `/oauth/authorize?redirect_uri=${pathname}`
-    //     // }
-
-    //     break
-    // }
-
     if (status === 'success' && data?.username !== auth.username) {
       window.location.href = `/oauth/authorize?redirect_uri=${pathname}`
     }
-  }, [data, status, prevStatus, auth, pathname])
-
-  switch (formType) {
-    case 1:
-      form = <FeedForm feed={formValue} onFormValueChanged={onSetFormValue} />
-      mutation = mutateFeed()
-      break
-    case 2:
-      form = <EntryForm entry={formValue} />
-      break
-    default:
-      form = <Text>Not immplenment</Text>
-      break
-  }
-  const toast = useToast()
+  }, [data, status, auth, pathname])
 
   return (
     <SidebarWithHeader linkItems={linkItems}>
-      {/* <ErrorBoundary>
-        <Suspense fallback={<CircularProgress />}> */}
       <Outlet />
-      {/* </Suspense>
-      </ErrorBoundary> */}
-      <Drawer
-        isOpen={disclosure?.isOpen ?? false}
-        placement='right'
-        onClose={disclosure.onClose ?? function () {}}
-        size='md'
-      >
-        <DrawerOverlay />
-        <DrawerContent>
-          <DrawerHeader>View data</DrawerHeader>
-          <DrawerBody>{form}</DrawerBody>
-          <DrawerFooter>
-            <Button variant='outline' mr={3} onClick={disclosure.onClose}>
-              Cancel
-            </Button>
-            {mutation && (
-              <Button
-                colorScheme='blue'
-                type='submit'
-                onClick={async () => {
-                  try {
-                    const data = mutation.mutate(formValue)
-                    toast({ title: 'success', status: 'success' })
-                  } catch (err: unknown) {
-                    toast({ title: 'failed', status: 'error', description: `${err}` })
-                  }
-                }}
-                // onClick={onSubmit}
-                // onClick={() => {
-                //   mutation
-                //     .mutateAsync(formValue)
-                //     .then((resp) => {
-                //       console.log(resp)
-                //       toast({ title: 'success', status: 'success' })
-                //       disclosure.onClose!()
-                //     })
-                //     .catch((err) => toast({ title: 'failed', status: 'error', description: err?.message }))
-                // }}
-              >
-                Save
-              </Button>
-            )}
-          </DrawerFooter>
-        </DrawerContent>
-      </Drawer>
     </SidebarWithHeader>
   )
 }

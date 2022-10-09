@@ -110,3 +110,7 @@ export interface DrawerFormProps extends Record<string, unknown> {
 declare type Dict<T = any> = Record<string, T>
 
 export { Dict }
+
+export interface DrawerPayloadProps extends Dict {
+  id: string;
+}

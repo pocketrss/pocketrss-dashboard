@@ -1,4 +1,4 @@
-import { Dispatch, SetStateAction, useEffect, useMemo, useState } from 'react'
+import React, { Dispatch, SetStateAction, useEffect, useMemo, useState } from 'react'
 import {
   Row,
   Table as ReactTable,
@@ -12,6 +12,12 @@ import {
 } from '@tanstack/react-table'
 import {
   Button,
+  Drawer,
+  DrawerOverlay,
+  DrawerContent,
+  DrawerCloseButton,
+  DrawerBody,
+  DrawerFooter,
   HStack,
   Input,
   InputGroup,
@@ -20,16 +26,15 @@ import {
   Select,
   Stack,
   Table,
+  TableContainer,
   Text,
   Thead,
   Tbody,
   Tr,
   Th,
   Td,
-  TableContainer,
   VStack,
-  UseDisclosureProps,
-  Tag,
+  useDisclosure,
 } from '@chakra-ui/react'
 import { DateTime } from 'luxon'
 import { useArray, useLocalStorage } from 'react-recipes'
@@ -37,17 +42,12 @@ import { useAtom } from 'jotai'
 
 import { useTheme, useEntries } from '@/hooks'
 import { EntryProps } from '@/types'
-import { authAtom, pageAtom } from '@/app/store'
+import { authAtom, drawerAtom, pageAtom } from '@/app/store'
+import { DataTable, EntryForm } from '@/components'
 
-const Entry = ({
-  disclosure,
-  onSetFormValue,
-}: {
-  disclosure: UseDisclosureProps
-  onSetFormValue: Dispatch<SetStateAction<Object>>
-}) => {
+const Entry = () => {
   const { theme } = useTheme()
-  // const [pageSize, setPageSize] = useLocalStorage('pageSize', 10)
+  const [drawer, setDrawer] = useAtom(drawerAtom)
   const [authStore] = useAtom(authAtom)
   console.log('token@entry page: ', authStore.token)
   const [pageStore, setPageStore] = useAtom(pageAtom)
@@ -57,7 +57,11 @@ const Entry = ({
   const { add, clear, removeIndex, removeById, value: entryList, setValue: setEntryList } = useArray([])
   const [totalPage, setTotalPage] = useState(0)
 
+  const { isOpen, onOpen, onClose } = useDisclosure()
+
   useEffect(() => setPageStore({ pageSize: pagination.pageSize }), [pagination])
+
+  useEffect(() => (drawer.isOpen ? onOpen() : onClose()), [drawer.isOpen])
 
   useEffect(() => {
     console.log('data: ', data)
@@ -66,6 +70,11 @@ const Entry = ({
     setEntryList(entrylist)
     setTotalPage(totalpage)
   }, [data])
+
+  const handleClose = () => {
+    setDrawer({ ...drawer, isOpen: false })
+    onClose()
+  }
 
   const columns = useMemo<ColumnDef<EntryProps>[]>(
     () => [
@@ -128,96 +137,24 @@ const Entry = ({
 
   return (
     <VStack>
-      <TableContainer bgColor='white' w='full'>
-        <Table variant='simple'>
-          <Thead>
-            {table.getHeaderGroups().map((headerGroup) => (
-              <Tr key={headerGroup.id}>
-                {headerGroup.headers.map((header) => {
-                  return (
-                    <Th key={header.id} colSpan={header.colSpan}>
-                      {header.isPlaceholder ? null : (
-                        <div>{flexRender(header.column.columnDef.header, header.getContext())}</div>
-                      )}
-                    </Th>
-                  )
-                })}
-              </Tr>
-            ))}
-          </Thead>
-          <Tbody>
-            {table.getRowModel().rows.map((row) => {
-              const rowClick = (row: Row<EntryProps>) => {
-                if (!row) return
-                onSetFormValue(entryList[row.index])
-                disclosure.onOpen!()
-              }
-              return (
-                <Tr key={row.id} data-index={row.index} onClick={() => rowClick(row)} _hover={{ cursor: 'pointer' }}>
-                  {row.getVisibleCells().map((cell) => {
-                    const content =
-                      cell.column.id === 'title' ? (
-                        // <Link href={cell.column.url} isExternal>
-                        <Text noOfLines={1}>
-                          {flexRender(cell.column.columnDef.cell, cell.getContext())}{' '}
-                          {/* <FiExternalLink style={{ display: 'inline-block' }} /> */}
-                        </Text>
-                      ) : (
-                        // </Link>
-                        flexRender(cell.column.columnDef.cell, cell.getContext())
-                      )
-                    return <Td key={cell.id}>{content}</Td>
-                  })}
-                </Tr>
-              )
-            })}
-          </Tbody>
-        </Table>
-        <HStack m={1}>
-          <Text>Page</Text>
-          <Button disabled={!table.getCanPreviousPage()} onClick={() => table.setPageIndex(0)}>
-            {'<<'}
-          </Button>
-          <Button disabled={!table.getCanPreviousPage()} onClick={() => table.previousPage()}>
-            {'<'}
-          </Button>
-          <Button disabled={!table.getCanNextPage()} onClick={() => table.nextPage()}>
-            {'>'}
-          </Button>
-          <Button disabled={!table.getCanNextPage()} onClick={() => table.setPageIndex(table.getPageCount() - 1)}>
-            {'>>'}
-          </Button>
-          <InputGroup>
-            {/* <InputLeftElement h="full">
-              <Text p={1} fontSize={11} bgColor="gray.100">Total: {table.getPageCount()}</Text>
-            </InputLeftElement> */}
-            <InputLeftAddon children={`Total ${table.getPageCount()}`} />
-            <Input
-              type='number'
-              w={90}
-              value={table.getState().pagination.pageIndex + 1}
-              bgColor='white'
-              textAlign='end'
-              onChange={(evt) => {
-                const page = evt.target.value ? Number(evt.target.value) - 1 : 0
-                table.setPageIndex(page)
-              }}
-            />
-          </InputGroup>
-          <Text>Show</Text>
-          <Select
-            w={150}
-            value={table.getState().pagination.pageSize}
-            onChange={(evt) => table.setPageSize(Number(evt.target.value))}
-          >
-            {['10', '20', '50', '100'].map((pageSize) => (
-              <option key={pageSize} value={pageSize}>
-                {pageSize}
-              </option>
-            ))}
-          </Select>
-        </HStack>
-      </TableContainer>
+      <DataTable table={table} list={entryList} />
+      <Drawer isOpen={isOpen} onClose={() => handleClose()}>
+        <DrawerOverlay />
+        <DrawerContent>
+          <DrawerCloseButton />
+          <DrawerBody>
+            <EntryForm />
+          </DrawerBody>
+          <DrawerFooter>
+            <Button variant='outline' mr={3} onClick={() => handleClose()}>
+              Cancel
+            </Button>
+            {/* <Button colorScheme='blue' type='submit' onClick={() => console.log('form submitting...')}>
+              Submit
+            </Button> */}
+          </DrawerFooter>
+        </DrawerContent>
+      </Drawer>
     </VStack>
   )
 }

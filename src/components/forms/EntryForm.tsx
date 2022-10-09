@@ -1,24 +1,26 @@
+import { drawerAtom } from '@/app/store'
 import { EntryProps } from '@/types'
 import { Code, FormControl, FormLabel, Icon, Link, Text } from '@chakra-ui/react'
+import { useAtom } from 'jotai'
 import { DateTime } from 'luxon'
+import { useEffect } from 'react'
+import { useForm } from 'react-hook-form'
 import { RiExternalLinkLine } from 'react-icons/ri'
 
 import { FormElementReadonly } from './FormElement'
 
-const EntryForm = ({
-  entry = {
-    id: 0,
-    title: '',
-    content: '',
-    description: '',
-    published_at: DateTime.local(),
-    favorited_at: DateTime.local(),
-    created_at: DateTime.local()
-  }
-}: {
-  entry: EntryProps
-}) => {
-  console.log(DateTime.fromISO(entry.published_at.toLocaleString()).setLocale('zh-CN').toLocaleString())
+const EntryForm = () => {
+  const [drawer, setDrawer] = useAtom(drawerAtom)
+  const entry = drawer.payload
+
+  const {
+    handleSubmit,
+    register,
+    formState: { errors, isSubmitting },
+  } = useForm()
+
+  useEffect(() => setDrawer({ ...drawer, isSubmitting }), [isSubmitting])
+
   return (
     <form>
       <FormElementReadonly title='ID'>{entry.id}</FormElementReadonly>
