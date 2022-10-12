@@ -49,7 +49,7 @@ const Feed = () => {
   const mutation = mutateFeed()
 
   useEffect(() => {
-    const feedlist = data?.data?.feeds ?? []
+    const feedlist = (data?.data?.feeds ?? []) as Array<FeedProps>
     const totalpage = data?.page?.total ?? 0
     setFeedList(feedlist)
     setTotalPage(totalpage)
