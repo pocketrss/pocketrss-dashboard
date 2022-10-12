@@ -1,14 +1,11 @@
 import { EntryProps } from '@/types'
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import {
-  Row,
-  Table as ReactTable,
   PaginationState,
   getCoreRowModel,
   getFilteredRowModel,
   getPaginationRowModel,
   ColumnDef,
-  flexRender,
   useReactTable,
 } from '@tanstack/react-table'
 import {
@@ -19,26 +16,13 @@ import {
   DrawerCloseButton,
   DrawerBody,
   DrawerFooter,
-  HStack,
-  Input,
-  InputGroup,
-  InputLeftAddon,
   Skeleton,
-  Select,
   Stack,
-  Table,
-  Text,
-  Thead,
-  Tbody,
-  Tr,
-  Th,
-  Td,
-  TableContainer,
   VStack,
   useDisclosure,
 } from '@chakra-ui/react'
 import { DateTime } from 'luxon'
-import { useArray, useLocalStorage } from 'react-recipes'
+import { useList } from 'react-use'
 import { useAtom } from 'jotai'
 
 import { useTheme, useEntries } from '@/hooks'
@@ -50,25 +34,23 @@ const Favor = () => {
   const [drawer, setDrawer] = useAtom(drawerAtom)
   const [authStore] = useAtom(authAtom)
   const [pageStore, setPageStore] = useAtom(pageAtom)
-  // const [pageSize, setPageSize] = useLocalStorage('pageSize', 10)
   const [pagination, setPagination] = useState<PaginationState>({ pageIndex: 0, pageSize: pageStore.pageSize })
 
   const { data, isLoading } = useEntries({ pagination, isFavor: true, token: authStore.token })
-  const { add, clear, removeIndex, removeById, value: entryList, setValue: setEntryList } = useArray([])
+  const [entryList, { set: setEntryList }] = useList<EntryProps>()
   const [totalPage, setTotalPage] = useState(0)
   const { isOpen, onOpen, onClose } = useDisclosure()
 
   useEffect(() => {
-    const entrylist = data?.data?.entries ?? []
+    const entrylist = (data?.data?.entries ?? []) as Array<EntryProps>
     const totalpage = data?.page?.total ?? 0
     setEntryList(entrylist)
     setTotalPage(totalpage)
   }, [data])
 
   useEffect(() => setPageStore({ pageSize: pagination.pageSize }), [pagination])
-  // useEffect(() => setDrawer({ ...drawer, isOpen }), [isOpen])
+
   useEffect(() => (drawer.isOpen ? onOpen() : onClose()), [drawer.isOpen])
-  // useEffect(() => setDrawer({ ...drawer, isOpen }), [isOpen])
 
   const handleClose = () => {
     setDrawer({ ...drawer, isOpen: false })

@@ -73,9 +73,9 @@ export interface FeedProps {
   id: number;
   title: string;
   subscription: string;
-  description: string;
-  sensitive: boolean
-  disabled: boolean
+  description?: string;
+  sensitive?: boolean
+  disabled?: boolean
 }
 
 export interface EntryProps {
@@ -112,5 +112,5 @@ declare type Dict<T = any> = Record<string, T>
 export { Dict }
 
 export interface DrawerPayloadProps extends Dict {
-  id: string;
+  id: number;
 }

@@ -5,7 +5,7 @@ import { LinkItemProps } from '@/types'
 import { RiHome4Line, RiRssLine, RiNewspaperLine, RiHeart2Line } from 'react-icons/ri'
 import { Suspense, lazy, useState } from 'react'
 import { Route, Routes } from 'react-router-dom'
-import { ChakraProvider, useDisclosure, theme } from '@chakra-ui/react'
+import { ChakraProvider, theme } from '@chakra-ui/react'
 import { createStandaloneToast } from '@chakra-ui/toast'
 import { QueryClientProvider } from '@tanstack/react-query'
 
@@ -28,8 +28,6 @@ const PocketRSSApp = () => {
     { name: 'Favourites', icon: RiHeart2Line, url: '/favor' },
     // { name: 'Settings', icon: RiSettings4Line, url: '/' }
   ]
-  const disclosure = useDisclosure()
-  const [formValue, setFormValue] = useState<Object>({})
 
   return (
     <Suspense fallback={null}>

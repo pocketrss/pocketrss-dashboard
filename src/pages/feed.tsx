@@ -14,21 +14,24 @@ import {
   DrawerCloseButton,
   DrawerContent,
   DrawerFooter,
+  DrawerHeader,
   DrawerOverlay,
   Flex,
   Skeleton,
   Stack,
   VStack,
   useDisclosure,
+  useToast,
 } from '@chakra-ui/react'
 import { DateTime } from 'luxon'
-import { useArray, useLocalStorage } from 'react-recipes'
+import { useList } from 'react-use'
 import { useAtom } from 'jotai'
 
-import { useTheme, useFeeds } from '@/hooks'
-import { FeedProps } from '@/types'
+import { mutateFeed, useFeeds, useTheme } from '@/hooks'
+import { DrawerPayloadProps, FeedProps } from '@/types'
 import { authAtom, drawerAtom, pageAtom } from '@/app/store'
 import { DataTable, FeedForm } from '@/components'
+import { last, sortBy } from 'rambda'
 
 const Feed = () => {
   // const { theme, toggleTheme } = useTheme()
@@ -37,9 +40,13 @@ const Feed = () => {
   const [drawer, setDrawer] = useAtom(drawerAtom)
   const [pagination, setPagination] = useState<PaginationState>({ pageIndex: 0, pageSize: pageStore.pageSize })
   const { data, isLoading } = useFeeds({ pagination, token: authStore.token })
-  const { add, removeIndex, value: feedList, setValue: setFeedList } = useArray([])
+  const [feedList, { set: setFeedList, push: pushFeedList, update: updateFeedList, removeAt: removeFeedListAt }] =
+    useList<FeedProps>()
   const [totalPage, setTotalPage] = useState(0)
   const { isOpen, onOpen, onClose } = useDisclosure()
+  const toast = useToast()
+
+  const mutation = mutateFeed()
 
   useEffect(() => {
     const feedlist = data?.data?.feeds ?? []
@@ -121,32 +128,53 @@ const Feed = () => {
 
   return (
     <VStack>
-      <Flex w='full' justify='right'>
+      <Flex w='full' justify='flex-end'>
         <Button
           colorScheme='blue'
           onClick={() => {
-            // onSetFormValue({})
-            // disclosure.onOpen!()
             onOpen()
-            setDrawer({ ...drawer, payload: { id: '' } })
+            setDrawer({ ...drawer, payload: { id: 0 } })
           }}
         >
           Add
         </Button>
       </Flex>
       <DataTable table={table} list={feedList} />
-      <Drawer isOpen={isOpen} onClose={() => handleClose()}>
+      <Drawer size='md' isOpen={isOpen} onClose={() => handleClose()}>
         <DrawerOverlay />
         <DrawerContent>
           <DrawerCloseButton />
-          <DrawerBody>
+          <DrawerHeader>Form for feed</DrawerHeader>
+          <DrawerBody lineHeight={9}>
             <FeedForm />
           </DrawerBody>
           <DrawerFooter>
             <Button variant='outline' mr={3} onClick={() => handleClose()}>
               Cancel
             </Button>
-            <Button colorScheme='blue' type='submit' onClick={() => console.log('form submitting...')}>
+            <Button
+              colorScheme='blue'
+              type='submit'
+              onClick={() => {
+                mutation
+                  .mutateAsync({ data: drawer.payload, token: authStore?.token ?? '' })
+                  .then(() => {
+                    const sortFn = (x: DrawerPayloadProps) => x.id
+                    const sortedFeedList = sortBy(sortFn, feedList)
+                    const lastId = last(sortedFeedList)?.id ?? 0
+                    const tempFeed = { ...drawer.payload, id: lastId + 1 }
+                    drawer.payload.id
+                      ? updateFeedList((a, b) => a.id === b.id, drawer.payload as FeedProps)
+                      : pushFeedList(tempFeed as FeedProps)
+                    toast({ title: 'Success', description: 'Feeds created', status: 'success' })
+                    handleClose()
+                  })
+                  .catch((err) => {
+                    console.error(err)
+                    toast({ title: 'failed', status: 'error', description: `${err}` })
+                  })
+              }}
+            >
               Submit
             </Button>
           </DrawerFooter>

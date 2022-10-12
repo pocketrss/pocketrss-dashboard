@@ -2,7 +2,7 @@ import { DrawerPayloadProps } from "@/types"
 import { atom } from "jotai"
 
 export const initialPayload: DrawerPayloadProps = {
-  id: '',
+  id: 0,
   title: '',
   // subscription: '',
   // description: '',

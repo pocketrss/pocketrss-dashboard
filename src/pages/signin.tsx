@@ -1,72 +1,41 @@
 import {
   Box,
   Button,
-  Checkbox,
   Flex,
   FormControl,
   FormLabel,
   Heading,
   Input,
-  Link,
   Stack,
   Text,
   useColorModeValue,
   useToast,
 } from '@chakra-ui/react'
-// import { useQueryParam, NumberParam, StringParam } from 'use-query-params'
-import {  useQueryParams } from 'react-recipes'
 import { useAtom } from 'jotai'
-import { MouseEvent, useState } from 'react'
+import { KeyboardEvent, MouseEvent, useState } from 'react'
 
 import { authAtom } from '@/app/store'
 import { mutSignin } from '@/hooks'
 import { CodeResponseProps } from '@/types'
 import ky from 'ky'
+import { useSearchParam } from 'react-use'
 
 const Signin = () => {
   const toast = useToast()
   const signinMutation = mutSignin()
-  const { getParams } = useQueryParams()
-  const { code, redirect_uri } = getParams()
+  const code = useSearchParam('code')
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
   const [_, setAuth] = useAtom(authAtom)
-  // const { data } = useVerify({ token: auth.token })
 
-  // useEffect(() => {
-  //   console.log('auth: ', auth, 'auth verify...', data, '  reuri:', redirect_uri)
-  // }, [auth, data, redirect_uri])
-
-  const handleLogin = async (evt: MouseEvent<HTMLButtonElement>) => {
+  const handleLogin = async (evt: MouseEvent<HTMLButtonElement> | KeyboardEvent<HTMLInputElement>) => {
     evt.preventDefault()
-    console.log(redirect_uri)
-    // signinMutation
-    //   .mutateAsync({ code, username, password })
-    //   .then((resp) => {
-    //     if (!resp.ok) {
-    //       throw 'Sigin failed'
-    //     }
-    //     return resp.json() as CodeResponseProps
-    //   })
-    //   .then((data) => data.access_token ?? '')
-    //   .then((token) => {
-    //     setAuth({ username, token })
-    //   })
-    //   .catch((err) => {
-    //     console.error(err)
-    //     toast({
-    //       title: 'Error',
-    //       description: 'Signin failed',
-    //       status: 'error',
-    //     })
-    //   })
-    // const mu = signinMutation.mutate({ code, username, password })
-    // const resp = await mu.json()
-    const resp = await ky.post("/oauth/signin", { json: { code, username, password }})
+
+    const resp = await ky.post('/oauth/signin', { json: { code, username, password } })
     const data: CodeResponseProps = await resp.json()
     console.log('signin...', resp, '  data: ', data)
     const token = data?.access_token ?? ''
-    if (token.length === 0 ) {
+    if (token.length === 0) {
       toast({
         title: 'Error',
         description: 'Signin failed',
@@ -77,6 +46,7 @@ const Signin = () => {
     setAuth({ username, token })
     evt.stopPropagation()
   }
+
   return (
     <Flex minH='100vh' align='center' justify='center' bg={useColorModeValue('gray.50', 'gray.800')}>
       <Stack spacing={8} mx='auto' maxW='lg' py={12} px={6}>
@@ -85,7 +55,6 @@ const Signin = () => {
           <Text fontSize='lg' color='gray.600'>
             Sign In
           </Text>
-          {/* <Text>{code}</Text> */}
         </Stack>
         <Box rounded='lg' bg={useColorModeValue('white', 'gray.700')} boxShadow='lg' p={8}>
           <Stack spacing={4}>
@@ -95,20 +64,27 @@ const Signin = () => {
             </FormControl>
             <FormControl id='password'>
               <FormLabel>Password</FormLabel>
-              <Input type='password' value={password} onChange={(evt) => setPassword(evt.target.value)} />
+              <Input
+                type='password'
+                onKeyDown={(evt) => {
+                  if (evt.key === 'Enter') {
+                    handleLogin(evt)
+                  }
+                }}
+                value={password}
+                onChange={(evt) => setPassword(evt.target.value)}
+              />
             </FormControl>
             <Stack spacing={10}>
-              {/* <Stack
-                direction={{ base: 'column', sm: 'row' }}
-                align='start'
-                justify='space-between'>
-                <Checkbox>Remember me</Checkbox>
-                <Link color='blue.400'>Forgot password?</Link>
-              </Stack> */}
               <Button
                 bg='blue.400'
                 color='white'
                 onClick={handleLogin}
+                // onKeyDown={(evt) => {
+                //   if (evt.key === 'Enter') {
+                //     handleLogin()
+                //   }
+                // }}
                 isLoading={signinMutation.isLoading}
                 loadingText='submitting...'
                 _hover={{

@@ -17,7 +17,7 @@ const FormElementReadonly = ({ title, children }: DrawerFormProps) => {
       <FormLabel htmlFor={title.toLowerCase()} mt={2}>
         {title}
       </FormLabel>
-      <Text boxShadow='xs' rounded='sm' bgColor='gray.100' p='1'>
+      <Text boxShadow='xs' rounded='sm' overflowX='auto' bgColor='gray.100' p='1'>
         {children}
       </Text>
     </FormControl>

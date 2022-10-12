@@ -3,6 +3,9 @@ import { createStandaloneToast } from '@chakra-ui/toast'
 
 import { Dict, ExtractFnReturnType, QueryResponseProps, useQueryOptions } from '@/types';
 import request from '@/utils/ky';
+import { queryClient } from '@/utils/react-query'
+import { KyResponse } from 'ky';
+import { omit } from 'rambda'
 
 const { toast } = createStandaloneToast()
 
@@ -21,7 +24,7 @@ export const fetchFeeds = async ({ pagination, token }: useQueryOptions): Promis
   try {
     const resp = await request.get('/api/v1/feeds', opts)
     result = await resp.json()
-  } catch (error) {
+  } catch ({ err: unkown }) {
     toast({ title: 'Error', status: 'error' })
   }
 	return result;
@@ -46,9 +49,17 @@ export const useFeeds = ({ pagination, token, config }: useQueryOptions) => {
 // }
 
 export const mutateFeed = () => {
-  return useMutation((data: Dict) => {
+  return useMutation(({data, token}: Dict): Promise<KyResponse> => {
     const url = data?.id ? `/api/v1/feeds/${data?.id}` : `/api/v1/feeds/`
     console.log(url)
-    return request.post(url, { body: JSON.stringify(data) })
+    let opts = data?.id ? { json: data } : { json: omit('id', data) }
+    if (token && token.length > 0) {
+      opts = Object.assign(opts, {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      })
+    }
+    return request.post(url, opts)
   })
 }

@@ -19,6 +19,7 @@ const fetchVerify = async (token: string) => {
     const resp = await ky.get('/api/v1/accounts/verify_credentials', { headers: { Authorization: `Bearer ${token}` } })
     result = await resp.json()
   } catch (err) {
+    // window.location.href = '/signin'
     toast({ title: 'Error', status: 'error' })
   }
   return result

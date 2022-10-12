@@ -1,17 +1,11 @@
 import { drawerAtom } from '@/app/store'
-import { FeedProps } from '@/types'
-import { Alert, AlertIcon, FormControl, FormLabel, Input, Switch } from '@chakra-ui/react'
+import { Input, Switch } from '@chakra-ui/react'
 import { useAtom } from 'jotai'
 import { Dispatch, memo, SetStateAction, useEffect, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { FormElement } from './FormElement'
 
 const FeedForm = () => {
-  // const [title, setTitle] = useState<string>(feed?.title ?? '')
-  // const [subscription, setSubscription] = useState<string>(feed?.subscription ?? '')
-  // const [description, setDescription] = useState<string>(feed?.description ?? '')
-  // const [sensitive, setSensitive] = useState<boolean>(feed?.sensitive ?? false)
-  // const [disabled, setDisabled] = useState<boolean>(feed?.disabled ?? false)
   const [drawer, setDrawer] = useAtom(drawerAtom)
   const { id, title, subscription, description, sensitive, disabled } = drawer.payload
 

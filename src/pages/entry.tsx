@@ -1,13 +1,10 @@
-import React, { Dispatch, SetStateAction, useEffect, useMemo, useState } from 'react'
+import React, { useEffect, useMemo, useState } from 'react'
 import {
-  Row,
-  Table as ReactTable,
   PaginationState,
   getCoreRowModel,
   getFilteredRowModel,
   getPaginationRowModel,
   ColumnDef,
-  flexRender,
   useReactTable,
 } from '@tanstack/react-table'
 import {
@@ -17,27 +14,15 @@ import {
   DrawerContent,
   DrawerCloseButton,
   DrawerBody,
+  DrawerHeader,
   DrawerFooter,
-  HStack,
-  Input,
-  InputGroup,
-  InputLeftAddon,
   Skeleton,
-  Select,
   Stack,
-  Table,
-  TableContainer,
-  Text,
-  Thead,
-  Tbody,
-  Tr,
-  Th,
-  Td,
   VStack,
   useDisclosure,
 } from '@chakra-ui/react'
 import { DateTime } from 'luxon'
-import { useArray, useLocalStorage } from 'react-recipes'
+import { useList } from 'react-use'
 import { useAtom } from 'jotai'
 
 import { useTheme, useEntries } from '@/hooks'
@@ -54,7 +39,7 @@ const Entry = () => {
   const [pagination, setPagination] = useState<PaginationState>({ pageIndex: 0, pageSize: pageStore.pageSize })
 
   const { data, isLoading } = useEntries({ pagination, token: authStore.token })
-  const { add, clear, removeIndex, removeById, value: entryList, setValue: setEntryList } = useArray([])
+  const [entryList, { set: setEntryList }] = useList<EntryProps>([])
   const [totalPage, setTotalPage] = useState(0)
 
   const { isOpen, onOpen, onClose } = useDisclosure()
@@ -65,7 +50,7 @@ const Entry = () => {
 
   useEffect(() => {
     console.log('data: ', data)
-    const entrylist = data?.data?.entries ?? []
+    const entrylist = (data?.data?.entries ?? []) as Array<EntryProps>
     const totalpage = data?.page?.total ?? 0
     setEntryList(entrylist)
     setTotalPage(totalpage)
@@ -138,11 +123,12 @@ const Entry = () => {
   return (
     <VStack>
       <DataTable table={table} list={entryList} />
-      <Drawer isOpen={isOpen} onClose={() => handleClose()}>
+      <Drawer size='md' isOpen={isOpen} onClose={() => handleClose()}>
         <DrawerOverlay />
         <DrawerContent>
           <DrawerCloseButton />
-          <DrawerBody>
+          <DrawerHeader>Form for entry</DrawerHeader>
+          <DrawerBody lineHeight={6}>
             <EntryForm />
           </DrawerBody>
           <DrawerFooter>

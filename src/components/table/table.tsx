@@ -15,7 +15,6 @@ import {
   Tr,
   Th,
   Text,
-  useDisclosure,
 } from '@chakra-ui/react'
 import { flexRender, Row, Table as ReactTable } from '@tanstack/react-table'
 import { useAtom } from 'jotai'
