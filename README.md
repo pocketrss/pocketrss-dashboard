@@ -1,6 +1,6 @@
 # <p align="center">📱 PocketRSS</p>
 
-<p align="center">PocketRSS - A powerfull RSS aggregate server in 1 file compatible</p>
+<p align="center">PocketRSS - A powerfull RSS aggregate server in 1 file.</p>
 
 ## Features
 
@@ -22,14 +22,14 @@ PocketRSS is a powerfull RSS aggregate server in 1 file with **XML** and **json*
 
 ## Getting Started
 
-1. Download [newest release](https://github.com/pocketrss/pocketrss-dasnboard/releases) from github
+1. Download [newest release](https://github.com/pocketrss/pocketrss-dashboard/releases) from github
 
 2. Uncompress downloaded file and open uncompressed directory
 
 3. Copy `pocketrss.example.toml` as `pocketrss.toml`
 
 4. Run pocketrss server in terminal
-   
+
    ```bash
    ./pocketrss_linux_amd64 serve
    ```
@@ -79,9 +79,9 @@ PocketRSS is a powerfull RSS aggregate server in 1 file with **XML** and **json*
 ## FAQ
 
 * Where is the RSS endpoint
-  
+
   `http[s]://your.server/rss`
 
 * How can I visit my own server without SSL using Tusky.
-  
+
   Using my modified version of Tusky. I can be found in [release page](https://github.com/pocketrss/pocketrss-dashboard/releases/tag/Tusky-debug-20220713)
