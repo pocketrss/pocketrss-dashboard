@@ -77,7 +77,7 @@ const Home: React.FunctionComponent = () => {
             </Heading>
             <Box overflowX='auto' p={4} bgColor='gray.100' fontSize='xl' rounded='base'>
               {(length(entry.content) > 0 || length(entry.description) > 0) && (
-                <HTMLRender html={entry.content ?? entry.description} />
+                <HTMLRender html={entry.content || entry.description} />
               )}
             </Box>
           </Box>
