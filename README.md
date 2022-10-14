@@ -30,9 +30,9 @@ PocketRSS is a powerfull RSS aggregate server in 1 file with **XML** and **json*
 
 4. Run pocketrss server in terminal
 
-   ```bash
-   ./pocketrss_linux_amd64 serve
-   ```
+  ```bash
+  ./pocketrss_linux_amd64 serve
+  ```
 
 5. Look at [http://localhost:5000](http://localhost:5000) to see the dashboard.
 
@@ -66,7 +66,7 @@ PocketRSS is a powerfull RSS aggregate server in 1 file with **XML** and **json*
 
 #### Desktop
 
-* Leaf
+* Leaf (RSS)
 
 ![](/assets/images/client_leaf.png?raw=true)
 
@@ -84,4 +84,4 @@ PocketRSS is a powerfull RSS aggregate server in 1 file with **XML** and **json*
 
 * How can I visit my own server without SSL using Tusky.
 
-  Using my modified version of Tusky. I can be found in [release page](https://github.com/pocketrss/pocketrss-dashboard/releases/tag/Tusky-debug-20220713)
+  Using my modified version of Tusky. It can be found in [release page](https://github.com/pocketrss/pocketrss-dashboard/releases/tag/Tusky-debug-20220713)
