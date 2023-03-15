@@ -1,37 +1,32 @@
-import { Refine, GitHubBanner, Authenticated } from "@refinedev/core";
+import { Authenticated, Refine } from "@refinedev/core";
 import { RefineKbar, RefineKbarProvider } from "@refinedev/kbar";
 
 import {
-  notificationProvider,
-  refineTheme,
-  Layout,
-  ErrorComponent,
   AuthPage,
+  ErrorComponent,
+  Layout,
+  notificationProvider,
 } from "@refinedev/chakra-ui";
 
-import dataProvider from "@refinedev/simple-rest";
-import { ChakraProvider } from "@chakra-ui/react";
-import { BrowserRouter, Route, Routes, Outlet } from "react-router-dom";
+import {
+  ChakraProvider,
+  extendTheme,
+  withDefaultColorScheme,
+} from "@chakra-ui/react";
+import { BrowserRouter, Outlet, Route, Routes } from "react-router-dom";
 import routerBindings, {
-  NavigateToResource,
   CatchAllNavigate,
+  NavigateToResource,
   UnsavedChangesNotifier,
 } from "@refinedev/react-router-v6";
 import { useTranslation } from "react-i18next";
+import { IconHeart, IconHome, IconNews, IconRss } from "@tabler/icons";
+import { ChakraUIInferencer } from "@refinedev/inferencer/chakra-ui";
+
 import { Header } from "./components/header";
-import {
-  ProductList,
-  ProductCreate,
-  ProductEdit,
-  ProductShow,
-} from "pages/products";
-import {
-  CategoryList,
-  CategoryCreate,
-  CategoryEdit,
-  CategoryShow,
-} from "pages/categories";
 import { authProvider } from "./authProvider";
+import { dataProvider } from "./rest-data-provider";
+import DashboardPage from "pages/dashboard";
 
 function App() {
   const { t, i18n } = useTranslation();
@@ -42,34 +37,62 @@ function App() {
     getLocale: () => i18n.language,
   };
 
+  const baseTheme = extendTheme(
+    withDefaultColorScheme({ colorScheme: "telegram" }),
+  );
+  const theme = extendTheme({
+    ...baseTheme,
+    colors: {
+      sider: {
+        background: "#2A4365",
+      },
+    },
+  });
+
   return (
     <BrowserRouter>
-      <GitHubBanner />
       <RefineKbarProvider>
-        <ChakraProvider theme={refineTheme}>
+        <ChakraProvider theme={theme}>
           <Refine
-            dataProvider={dataProvider("https://api.fake-rest.refine.dev")}
+            dataProvider={dataProvider("/api/v1")}
             notificationProvider={notificationProvider()}
             resources={[
               {
-                name: "products",
-                list: "/products",
-                create: "/products/create",
-                edit: "/products/edit/:id",
-                show: "/products/show/:id",
+                name: "dashboard",
+                icon: <IconHome />,
+                list: "/",
+                meta: { label: "Dashboard" },
+              },
+              {
+                name: "feeds",
+                icon: <IconRss />,
+                list: "/feeds",
+                create: "/feeds/create",
+                edit: "/feeds/edit/:id",
+                show: "/feeds/show/:id",
                 canDelete: true,
               },
               {
-                name: "categories",
-                list: "/categories",
-                create: "/categories/create",
-                edit: "/categories/edit/:id",
-                show: "/categories/show/:id",
+                name: "entries",
+                icon: <IconNews />,
+                list: "/entries",
+                create: "/entries/create",
+                edit: "/entries/edit/:id",
+                show: "/entries/show/:id",
+                canDelete: true,
+              },
+              {
+                name: "favorites",
+                icon: <IconHeart />,
+                list: "/favorites",
+                // create: "//create",
+                // edit: "//edit/:id",
+                show: "/favorites/show/:id",
                 canDelete: true,
               },
             ]}
             routerProvider={routerBindings}
-            authProvider={authProvider}
+            // authProvider={authProvider}
             i18nProvider={i18nProvider}
             options={{
               syncWithLocation: true,
@@ -88,19 +111,24 @@ function App() {
               >
                 <Route
                   index
-                  element={<NavigateToResource resource="products" />}
+                  path="/"
+                  element={<DashboardPage />}
                 />
-                <Route path="/products">
-                  <Route index element={<ProductList />} />
-                  <Route path="create" element={<ProductCreate />} />
-                  <Route path="edit/:id" element={<ProductEdit />} />
-                  <Route path="show/:id" element={<ProductShow />} />
+                <Route path="/feeds">
+                  <Route index element={<ChakraUIInferencer />} />
+                  <Route path="create" element={<ChakraUIInferencer />} />
+                  <Route path="edit/:id" element={<ChakraUIInferencer />} />
+                  <Route path="show/:id" element={<ChakraUIInferencer />} />
                 </Route>
-                <Route path="/categories">
-                  <Route index element={<CategoryList />} />
-                  <Route path="create" element={<CategoryCreate />} />
-                  <Route path="edit/:id" element={<CategoryEdit />} />
-                  <Route path="show/:id" element={<CategoryShow />} />
+                <Route path="/entries">
+                  <Route index element={<ChakraUIInferencer />} />
+                  <Route path="create" element={<ChakraUIInferencer />} />
+                  <Route path="edit/:id" element={<ChakraUIInferencer />} />
+                  <Route path="show/:id" element={<ChakraUIInferencer />} />
+                </Route>
+                <Route path="/favorites">
+                  <Route index element={<ChakraUIInferencer />} />
+                  <Route path="show/:id" element={<ChakraUIInferencer />} />
                 </Route>
               </Route>
               <Route
